@@ -1,0 +1,10 @@
+kategorie;popis;cislo;url_kategorie
+Knihy;"Píšu sem o všech knihách, které přečtu.";1;knihy
+Linux;"O nejlepším operačním systému ... :-).";2;linux
+"Programování";"Moje pokusy s Pythonem.";3;programovani
+"Život";"Kupodivu, také žiju a rád se podělím o zážitky.";4;zivot
+Hry;"Už tolik nepařím, ale občas mě něco chytne.";5;hry
+Filmy;"Filmy už nejsou, co bývali, občas se objeví něco, co musím komentovat.";6;filmy
+"Seriály";"Kvalitních filmů už tolik není, ale seriály jdou nahoru.";7;serialy
+"O LinuxGames.cz";"Kdysi jsem měl stránky o linuxových hrách, moc to nešlo, ale možná se k tomu časem vrátím.";8;o-linuxgames-cz
+"Ostatní";"Všechno, co se jinam nevešlo :).";9;ostatni
