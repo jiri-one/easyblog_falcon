@@ -40,6 +40,10 @@
 <button id="Vyhledat" name="Vyhledat">Vyhledat</button>
 </form></div><!-- .search_form-->
 </div><!-- .menu-->
+<%!
+	from ../settings import topics
+	all_topics = topics.run()
+%>
 </nav>
 <main>
 <div id="middle">

@@ -11,12 +11,6 @@ def render_template(req, resp, resource, template):
 	resp.body = mytemplate.render(data=resp.body)
 
 class EasyBlog(object):
-	def __init__(self):
-		"""Just init base mako template"""
-		base_template = templatelookup.get_template("base.mako")
-		
-		base_template.render(data=DOPLNIME)
-	
 	@falcon.after(render_template, "index.mako")
 	def on_get(self, req, resp):
 		"""Handles GET requests"""

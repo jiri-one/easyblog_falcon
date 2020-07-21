@@ -8,15 +8,21 @@ conn = r.connect( "192.168.222.20", 28015).repl()
 topics = r.db("blog_jirione").table("topics")
 posts = r.db("blog_jirione").table("posts")
 
-#with open('zapisky.csv', encoding="utf-8") as csvfile:
-    #posts.delete().run(conn)
-    #reader = 0
-    #fieldnames = ['cislo', 'url', 'nadpis', 'obsah', 'zadano_kdy', 'pocet_komentaru', 'kategorie']
-    #reader = csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=';')
-    #sorted_reader = sorted(reader, key=lambda row: row["zadano_kdy"], reverse=False)
-    #for row in sorted_reader[:-1]: 
-        #posts.insert({'comments': row['pocet_komentaru'], 'when': row['zadano_kdy'], 'url': row['url'], 'header': row['nadpis'], 'content': row['obsah'], 'categories': row['kategorie']})    
-
+with open('zapisky.csv', encoding="utf-8") as csvfile:
+    posts.delete().run(conn)
+    reader = 0
+    fieldnames = ['cislo', 'url', 'nadpis', 'obsah', 'zadano_kdy', 'pocet_komentaru', 'kategorie']
+    reader = csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=';')
+    sorted_reader = sorted(reader, key=lambda row: row["zadano_kdy"], reverse=False)
+    for row in sorted_reader[:-1]: 
+        posts.insert({
+            'comments': 0,
+            'when': row['zadano_kdy'],
+            'url': {"cze": row['url']}, #tady uvidíme, zda se dá pak přidávat další do slovníku, ale předpokládám, že ano (i další tři položky)
+            'header': {"cze": row['nadpis']}, 
+            'content': {"cze": row['obsah']},
+            'categories': {"cze": row['kategorie']}
+        }).run(conn)
 
 with open('kategorie.csv', encoding="utf-8") as csvfile:
     topics.delete().run(conn)
@@ -29,6 +35,16 @@ with open('kategorie.csv', encoding="utf-8") as csvfile:
             'url': {"cze": row['url_kategorie'], "eng": ""},
             'description': {"cze": row['popis'], "eng": ""}
             }).run(conn)
+
+# get from url
+cursor = posts.filter(r.row["url"]["cze"] == "predatori").run(conn)
+
+# add or update; in this case add english version of url
+posts.filter(r.row["url"]["cze"] == "predatori").update({"url": {"eng": "predators"}}).run(conn)
+
+# just add is with .append
+# delete is with .delete
+
 
 #fieldnames = ['cislo', 'url', 'nadpis', 'obsah', 'zadano_kdy', 'pocet_komentaru', 'kategorie']        
 #posts.delete().run(conn)
