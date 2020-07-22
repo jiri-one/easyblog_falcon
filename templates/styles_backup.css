@@ -40,13 +40,6 @@ nav {
   padding: 20px;
   text-align: center;
 }
-@media (min-width: 720px) {
-  nav .menu {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 20px;
-  }
-}
  
 footer {
   grid-column: span 3;

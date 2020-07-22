@@ -1,3 +1,11 @@
+<%!
+	from rethinkdb import RethinkDB
+	r = RethinkDB()
+	conn = r.connect("192.168.222.20", 28015).repl()
+	topics = r.db("blog_jirione").table("topics")
+	posts = r.db("blog_jirione").table("posts")
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,18 +27,18 @@
 <b>O autorovi:</b><br>
 <a class="topics" href="http://jiri.one/o-mne">O mně</a>
 <p>
-
 <b>Témata:</b><br>
 <div class="topics">
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/knihy">Knihy</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/linux">Linux</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/programovani">Programování</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/zivot">Život</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/hry">Hry</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/filmy">Filmy</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/serialy">Seriály</a>
-<a style="border-bottom: 1px solid #3c67be;" href="http://jiri.one/kategorie/o-linuxgames-cz">O LinuxGames.cz</a>
-<a href="http://jiri.one/kategorie/ostatni">Ostatní</a>
+<%
+	all_topics = list(topics.order_by("id").run(conn))
+%>
+% for topic in all_topics:
+	% if topic["id"] != len(all_topics):
+		<a style="border-bottom: 1px solid #3c67be;" href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+	% else:
+		<a href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+	% endif
+% endfor
 </div><!-- .topics-->
 </p>
 <div class="search_form">
@@ -40,16 +48,6 @@
 <button id="Vyhledat" name="Vyhledat">Vyhledat</button>
 </form></div><!-- .search_form-->
 </div><!-- .menu-->
-<%!
-	from rethinkdb import RethinkDB
-	r = RethinkDB()
-	conn = r.connect( "192.168.222.20", 28015).repl()
-	topics = r.db("blog_jirione").table("topics")
-	all_topics = topics.run()
-%>
-% for topic in all_topics:
-	${topic["topic"]["cze"]}
-% endfor
 </nav>
 <main>
 <div id="middle">

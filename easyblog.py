@@ -27,3 +27,7 @@ easyblog = EasyBlog()
 
 # things will handle all requests to the '/things' URL path
 app.add_route('/', easyblog)
+
+#for windows run
+from waitress import serve
+serve(app, host='0.0.0.0', port=8080)

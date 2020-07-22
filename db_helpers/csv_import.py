@@ -29,12 +29,15 @@ with open('kategorie.csv', encoding="utf-8") as csvfile:
     reader = 0
     fieldnames = ['kategorie', 'popis', 'cislo', 'url_kategorie']
     reader = csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=';')
+    num_id = 1
     for row in list(reader)[1:]:
         info = topics.insert({
+            'id': num_id,
             'topic': {"cze": row['kategorie'], "eng": ""},
             'url': {"cze": row['url_kategorie'], "eng": ""},
             'description': {"cze": row['popis'], "eng": ""}
             }).run(conn)
+        num_id = num_id + 1
 
 # get from url
 cursor = posts.filter(r.row["url"]["cze"] == "predatori").run(conn)
