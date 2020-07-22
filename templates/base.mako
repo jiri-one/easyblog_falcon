@@ -26,7 +26,7 @@
 <div class="menu">
 <b>O autorovi:</b><br>
 <a class="topics" href="http://jiri.one/o-mne">O mně</a>
-<p>
+<p><br>
 <b>Témata:</b><br>
 <div class="topics">
 <%
@@ -40,7 +40,7 @@
 	% endif
 % endfor
 </div><!-- .topics-->
-</p>
+</p><br>
 <div class="search_form">
 <b>Vyhledávání:</b><br>
 <form method="post" action="http://jiri.one/hledej">

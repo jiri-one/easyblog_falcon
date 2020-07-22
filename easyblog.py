@@ -24,8 +24,6 @@ app.add_static_route("/templates", file_path("templates"), downloadable=True, fa
 
 # Resources are represented by long-lived class instances
 easyblog = EasyBlog()
-
-# things will handle all requests to the '/things' URL path
 app.add_route('/', easyblog)
 
 #for windows run
