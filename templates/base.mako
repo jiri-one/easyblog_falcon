@@ -41,9 +41,15 @@
 </form></div><!-- .search_form-->
 </div><!-- .menu-->
 <%!
-	from ../settings import topics
+	from rethinkdb import RethinkDB
+	r = RethinkDB()
+	conn = r.connect( "192.168.222.20", 28015).repl()
+	topics = r.db("blog_jirione").table("topics")
 	all_topics = topics.run()
 %>
+% for topic in all_topics:
+	${topic["topic"]["cze"]}
+% endfor
 </nav>
 <main>
 <div id="middle">
