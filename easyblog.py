@@ -1,7 +1,7 @@
 import falcon
 from wsgiref import simple_server
 from mako.lookup import TemplateLookup
-from settings import file_path, topics, posts
+from settings import file_path, topics, posts, conn, r
 
 templatelookup = TemplateLookup(directories=['templates'], module_directory='/tmp/mako_modules', collection_size=500, output_encoding='utf-8', encoding_errors='replace')
 
@@ -15,8 +15,9 @@ class EasyBlog(object):
 	def on_get(self, req, resp):
 		"""Handles GET requests"""
 		#resp.status = falcon.HTTP_200  # This is the default status
-		resp.body = {"data": "uvidime"}
-		
+		all_posts = list(posts.order_by(r.desc("when")).run(conn))
+		all_topics = list(topics.order_by("id").run(conn))
+		resp.body = {"posts": all_posts, "topics": all_topics}
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)

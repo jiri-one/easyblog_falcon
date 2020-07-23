@@ -74,7 +74,7 @@ h1 {
 
 .date { font-weight: bold; border: 1px solid #3c67be; margin: 0px 0px 20px 0px; padding: 3px; background-color: #c5d7fb; color: #000000; }
 
-.titulek { font-weight: bold; border-bottom: 1px dashed #3c67be; margin: 0px 0px 5px 0px; padding: 0px 0px 2px 0px; }
+.titulek { font-weight: bold; border-bottom: 1px solid #3c67be; margin: 0px 0px 5px 0px; padding: 0px 0px 2px 0px; }
 .titulek a:link, #titulek a:visited { color: #000000; text-decoration: none; }
 .titulek a:hover { color: #3c67be; }
 

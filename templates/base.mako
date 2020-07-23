@@ -1,11 +1,3 @@
-<%!
-	from rethinkdb import RethinkDB
-	r = RethinkDB()
-	conn = r.connect("192.168.222.20", 28015).repl()
-	topics = r.db("blog_jirione").table("topics")
-	posts = r.db("blog_jirione").table("posts")
-%>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,15 +21,12 @@
 <p><br>
 <b>Témata:</b><br>
 <div class="topics">
-<%
-	all_topics = list(topics.order_by("id").run(conn))
-%>
-% for topic in all_topics:
-	% if topic["id"] != len(all_topics):
-		<a style="border-bottom: 1px solid #3c67be;" href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
-	% else:
-		<a href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
-	% endif
+% for topic in data["topics"]:
+% if topic["id"] != len(data["topics"]):
+	<a style="border-bottom: 1px solid #3c67be;" href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+% else:
+	<a href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+% endif
 % endfor
 </div><!-- .topics-->
 </p><br>

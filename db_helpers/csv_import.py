@@ -21,7 +21,7 @@ with open('zapisky.csv', encoding="utf-8") as csvfile:
             'url': {"cze": row['url']}, #tady uvidíme, zda se dá pak přidávat další do slovníku, ale předpokládám, že ano (i další tři položky)
             'header': {"cze": row['nadpis']}, 
             'content': {"cze": row['obsah']},
-            'categories': {"cze": row['kategorie']}
+            'topics': {"cze": row['kategorie']}
         }).run(conn)
 
 with open('kategorie.csv', encoding="utf-8") as csvfile:
