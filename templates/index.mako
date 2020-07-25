@@ -30,3 +30,8 @@
           last_date = post["when"].split()[0][0:10]
      %>
 % endfor
+
+<%
+     print(others["posts_count"])
+%>
+<a href="/strana/2">Další strana</a>
