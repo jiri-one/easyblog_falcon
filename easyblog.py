@@ -14,14 +14,14 @@ class EasyBlog(object):
 		#resp.status = falcon.HTTP_200  # This is the default status
 		start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
 		index_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(conn))
-		resp.body = {"posts": index_posts, "topics": self.all_topics, "posts_count": self.posts_count}
+		resp.body = {"posts": index_posts, "topics": self.all_topics}
 	
 	@falcon.after(render_template, "index.mako")
 	def on_get_page(self, req, resp, page_number):
 		"""Handles GET requests on /page/{page_number} od /strana/{page_number}"""
 		start, end = slice_posts(page_number)
 		page_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(conn))
-		resp.body = {"posts": page_posts, "topics": self.all_topics, "posts_count": self.posts_count}
+		resp.body = {"posts": page_posts, "topics": self.all_topics}
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)

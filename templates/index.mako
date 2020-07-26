@@ -32,5 +32,6 @@
 % endfor
 
 ${mako_imp.posts_count}
+Tady budu pokračovat zítra
 
 <a href="/strana/2">Další strana</a>
