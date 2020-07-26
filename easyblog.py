@@ -1,15 +1,7 @@
 import falcon
 from wsgiref import simple_server
-from mako.lookup import TemplateLookup
-from settings import file_path, topics, posts, conn, r, slice_posts
-
-templatelookup = TemplateLookup(directories=['templates'], module_directory='/tmp/mako_modules', collection_size=500, output_encoding='utf-8', encoding_errors='replace')
-
-# decorator for Mako templates - works on GET method
-def render_template(req, resp, resource, template):
-	mytemplate = templatelookup.get_template(template)
-	others = {"posts_count": 227}
-	resp.body = mytemplate.render(data=resp.body, others=others)
+from settings import file_path, topics, posts, conn, r
+from helpers import render_template, slice_posts
 
 class EasyBlog(object):
 	def __init__(self):
@@ -30,7 +22,7 @@ class EasyBlog(object):
 		start, end = slice_posts(page_number)
 		page_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(conn))
 		resp.body = {"posts": page_posts, "topics": self.all_topics, "posts_count": self.posts_count}
-
+		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
 app.add_static_route("/templates", file_path("templates"), downloadable=True, fallback_filename=None)
@@ -44,5 +36,5 @@ app.add_route('/strana/{page_number:int}', easyblog, suffix="page")
 from hupper import start_reloader
 from waitress import serve
 reloader = start_reloader("easyblog.app") #test
-reloader.watch_files(['settings.py'])
+reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py'])
 serve(app, host='0.0.0.0', port=8080)

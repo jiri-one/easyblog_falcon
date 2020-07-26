@@ -31,7 +31,6 @@
      %>
 % endfor
 
-<%
-     print(others["posts_count"])
-%>
+${mako_imp.posts_count}
+
 <a href="/strana/2">Další strana</a>

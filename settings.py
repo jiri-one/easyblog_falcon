@@ -3,6 +3,8 @@ from os import path, chdir
 from glob import glob
 # import RethinkDB
 from rethinkdb import RethinkDB
+# import mako
+from mako.lookup import TemplateLookup
 
 # set current working directory
 cwd = path.dirname(path.abspath(__file__))
@@ -23,7 +25,4 @@ def file_path(file_name):
     file_abs_path = path.abspath(glob(f"**/{file_name}", recursive=True)[0])
     return file_abs_path
 
-def slice_posts(page_number):
-    end = posts_per_page * page_number
-    start = end - posts_per_page + 1
-    return start, end
+templatelookup = TemplateLookup(directories=['templates'], module_directory='/tmp/mako_modules', collection_size=500, output_encoding='utf-8', encoding_errors='replace', imports=['from mako_imports import mako_imp'])
