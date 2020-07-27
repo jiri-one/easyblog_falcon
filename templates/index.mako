@@ -31,7 +31,26 @@
      %>
 % endfor
 
-${mako_imp.posts_count}
-Tady budu pokračovat zítra
+<div class="pages">
+<%
+if "page" not in data:
+     data["page"] = 1
+%>
+% if data["page"] == 1:
+     <a href="/strana/2">Další strana</a>
+% else:
+     % for site in mako_imp.pages:
+          % if site == 1:
+                 <a href="/strana/1">[Zpět na index]</a>         
+          % elif site == data["page"]:
+              <a href="/strana/${site}">[_]</a> 
+          % else:
+               <a href="/strana/${site}">[${site}]</a> 
+          % endif
+     % endfor
+% endif
+</div>
 
-<a href="/strana/2">Další strana</a>
+
+
+     
