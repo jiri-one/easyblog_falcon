@@ -39,7 +39,7 @@ if "page" not in data:
 % if data["page"] == 1:
      <a href="/strana/2">Další strana</a>
 % else:
-     % for site in mako_imp.pages:
+     % for site in self.attr.pages:
           % if site == 1:
                  <a href="/strana/1">[Zpět na index]</a>         
           % elif site == data["page"]:

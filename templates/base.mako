@@ -1,3 +1,12 @@
+<%!
+	import sys
+	from math import ceil
+	sys.path.append("../")
+	from settings import posts_per_page
+	posts_count = 227
+	page_count = ceil(posts_count / posts_per_page)
+	pages = range(1,page_count+1)
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,9 +32,9 @@
 <div class="topics">
 % for topic in data["topics"]:
 % if topic["id"] != len(data["topics"]):
-	<a style="border-bottom: 1px solid #3c67be;" href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="/topic/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
 % else:
-	<a href="/topics/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+	<a href="/topic/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
 % endif
 % endfor
 </div><!-- .topics-->
