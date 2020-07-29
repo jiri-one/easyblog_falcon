@@ -36,18 +36,22 @@
 if "page" not in data:
      data["page"] = 1
 %>
-% if data["page"] == 1:
-     <a href="/strana/2">Další strana</a>
+% if len(self.attr.pages) < 2:
+     Strana 1/1
 % else:
-     % for site in self.attr.pages:
-          % if site == 1:
-                 <a href="/strana/1">[Zpět na index]</a>         
-          % elif site == data["page"]:
-              <a href="/strana/${site}">[_]</a> 
-          % else:
-               <a href="/strana/${site}">[${site}]</a> 
-          % endif
-     % endfor
+     % if data["page"] == 1 and 2 in self.attr.pages:
+          <a href="/strana/2">Další strana</a>
+     % else:
+          % for site in self.attr.pages:
+               % if site == 1:
+                      <a href="/strana/1">[Zpět na index]</a>         
+               % elif site == data["page"]:
+                   <a href="/strana/${site}">[_]</a> 
+               % else:
+                    <a href="/strana/${site}">[${site}]</a> 
+               % endif
+          % endfor
+     % endif
 % endif
 </div>
 

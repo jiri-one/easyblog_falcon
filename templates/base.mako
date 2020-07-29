@@ -5,7 +5,8 @@
 	from settings import posts_per_page
 	posts_count = 227
 	page_count = ceil(posts_count / posts_per_page)
-	pages = range(1,page_count+1)
+	pages = list(range(1,page_count+1))
+	print(pages)
 %>
 <!DOCTYPE html>
 <html>
