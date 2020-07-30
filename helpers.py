@@ -7,6 +7,6 @@ def render_template(req, resp, resource, template):
 	
 def slice_posts(page_number):
 	"""Simple function, which accpet page number and return numbers of posts (first number and last number)"""
-	end = posts_per_page * page_number
+	end = posts_per_page * page_number - 1
 	start = end - posts_per_page + 1
 	return start, end
