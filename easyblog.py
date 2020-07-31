@@ -42,7 +42,7 @@ class EasyBlog(object):
 		resp.body = {"posts": topic_posts, "topics": self.all_topics, "topic_url": topic_url, "pages": pages}
 		
 	@falcon.after(render_template, "index.mako")
-	def on_get_topicpage(self, req, resp, topic_url, page_number):
+	def on_get_topic_page(self, req, resp, topic_url, page_number):
 		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
 		start, end = slice_posts(page_number)
 		print(req.relative_uri)
@@ -66,8 +66,12 @@ app.add_route('/page/{page_number:int}', easyblog, suffix="page")
 app.add_route('/strana/{page_number:int}', easyblog, suffix="page")
 app.add_route('/topic/{topic_url}', easyblog, suffix="topic")
 app.add_route('/tema/{topic_url}', easyblog, suffix="topic")
-app.add_route('/topic/{topic_url}/strana/{page_number:int}', easyblog, suffix="topicpage")
-app.add_route('/tema/{topic_url}/page/{page_number:int}', easyblog, suffix="topicpage")
+app.add_route('/topic/{topic_url}/page/{page_number:int}', easyblog, suffix="topic_page")
+app.add_route('/tema/{topic_url}/strana/{page_number:int}', easyblog, suffix="topic_page")
+app.add_route('/search/{word}', easyblog, suffix="search")
+app.add_route('/hledej/{word}', easyblog, suffix="search")
+app.add_route('/search/{word}/page/{page_number:int}', easyblog, suffix="search")
+app.add_route('/hledej/{word}/strana/{page_number:int}', easyblog, suffix="search")
 
 #from hupper import start_reloader
 from waitress import serve
