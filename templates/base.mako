@@ -23,7 +23,7 @@
 <div class="topics">
 % for topic in data["topics"]:
 % if topic["id"] != len(data["topics"]):
-	<a style="border-bottom: 1px solid #3c67be;" href="/topic/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="/tema/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
 % else:
 	<a href="/topic/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
 % endif
@@ -32,8 +32,8 @@
 </p><br>
 <div class="search_form">
 <b>Vyhledávání:</b><br>
-<form method="post" action="http://jiri.one/hledej">
-<input type="text" id="vyhledavani" name="vyhledavani" size="15"><br>
+<form method="post" action="/hledej">
+<input type="text" id="vyhledavani" name="search" size="15"><br>
 <button id="Vyhledat" name="Vyhledat">Vyhledat</button>
 </form></div><!-- .search_form-->
 </div><!-- .menu-->

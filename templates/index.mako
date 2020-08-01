@@ -38,23 +38,23 @@ if "page" not in data:
 %>
 
 <%
-if "topic_url" not in data:
-     data["topic_url"] = "/"
+if "added_url" not in data:
+     data["added_url"] = "/"
 %>
 
 % if len(data["pages"]) < 2:
      Strana 1/1
 % else:
      % if data["page"] == 1 and 2 in data["pages"]:
-          <a href="${data["topic_url"]}strana/2">Další strana</a>
+          <a href="${data["added_url"]}strana/2">Další strana</a>
      % else:
           % for site in data["pages"]:
                % if site == 1:
-                    <a href="${data["topic_url"]}strana/1">[Zpět na index]</a>         
+                    <a href="${data["added_url"]}strana/1">[Zpět na index]</a>         
                % elif site == data["page"]:
-                    <a href="${data["topic_url"]}strana/${site}">[_]</a> 
+                    <a href="${data["added_url"]}strana/${site}">[_]</a> 
                % else:
-                    <a href="${data["topic_url"]}strana/${site}">[${site}]</a> 
+                    <a href="${data["added_url"]}strana/${site}">[${site}]</a> 
                % endif
           % endfor
      % endif
