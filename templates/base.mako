@@ -5,6 +5,7 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 	<link rel="stylesheet" href="/templates/reset.css">
 	<link rel="stylesheet" href="/templates/styles.css">
 </head>
@@ -32,7 +33,7 @@
 </p><br>
 <div class="search_form">
 <b>Vyhledávání:</b><br>
-<form method="post" action="/hledej">
+<form method="post" action="/hledej" accept-charset="UTF-8">
 <input type="text" id="vyhledavani" name="search" size="15"><br>
 <button id="Vyhledat" name="Vyhledat">Vyhledat</button>
 </form></div><!-- .search_form-->

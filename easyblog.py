@@ -76,9 +76,8 @@ class EasyBlog(object):
 		resp.body = {"posts": results, "topics": self.all_topics, "added_url": search_url, "pages": pages, "page": page_number}
 	
 	def on_post_search_form(self, req, resp):
-		print(req.get_param("search"))
 		searched_word = req.get_param("search")
-		new_url = f"/hledej/{searched_word}"
+		new_url = falcon.uri.encode(f"/hledej/{searched_word}")
 		raise falcon.HTTPSeeOther(new_url)
 		
 # falcon.API instances are callable WSGI apps
