@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from rethinkdb import RethinkDB
 import csv
+from html import unescape
 
 r = RethinkDB()
 conn = r.connect( "192.168.222.20", 28015).repl()
@@ -19,8 +20,8 @@ with open('zapisky.csv', encoding="utf-8") as csvfile:
             'comments': 0,
             'when': row['zadano_kdy'],
             'url': {"cze": row['url']}, #tady uvidíme, zda se dá pak přidávat další do slovníku, ale předpokládám, že ano (i další tři položky)
-            'header': {"cze": row['nadpis']}, 
-            'content': {"cze": row['obsah']},
+            'header': {"cze": unescape(row['nadpis'])}, 
+            'content': {"cze": unescape(row['obsah'])},
             'topics': {"cze": row['kategorie']}
         }).run(conn)
 

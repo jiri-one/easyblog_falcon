@@ -10,7 +10,6 @@ class EasyBlog(object):
 	@falcon.after(render_template, "index.mako")
 	def on_get(self, req, resp):
 		"""Handles GET requests on index (/)"""
-		#resp.status = falcon.HTTP_200  # This is the default status
 		start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
 		index_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(conn))
 		posts_count = posts.count().run(conn)
@@ -55,19 +54,20 @@ class EasyBlog(object):
 	@falcon.after(render_template, "index.mako")
 	def on_get_search(self, req, resp, searched_word):
 		start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
-		regex_word = "(?i)" + searched_word # for case insensitivity
+		regex_word = rf"(?i){searched_word}" # for case insensitivity
 		results = list(posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).slice(start, end).run(conn))
 		search_url = "/hledej/" + searched_word + "/"
 		posts_count = posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).count().run(conn)
 		page_count = ceil(posts_count / posts_per_page)
-		pages = list(range(1,page_count+1))		
+		pages = list(range(1,page_count+1))	
+		print(regex_word)
 		resp.body = {"posts": results, "topics": self.all_topics, "added_url": search_url, "pages": pages}
 			
 	@falcon.after(render_template, "index.mako")
 	def on_get_search_page(self, req, resp, searched_word, page_number):
 		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
 		start, end = slice_posts(page_number) # number one is here hardcoded, because index is always page one
-		regex_word = "(?i)" + searched_word # for case insensitivity
+		regex_word = rf"(?i){searched_word}" # for case insensitivity
 		results = list(posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).slice(start, end).run(conn))
 		search_url = "/hledej/" + searched_word + "/"
 		posts_count = posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).count().run(conn)
@@ -76,6 +76,7 @@ class EasyBlog(object):
 		resp.body = {"posts": results, "topics": self.all_topics, "added_url": search_url, "pages": pages, "page": page_number}
 	
 	def on_post_search_form(self, req, resp):
+		"""This method handles search form"""
 		searched_word = req.get_param("search")
 		new_url = falcon.uri.encode(f"/hledej/{searched_word}")
 		raise falcon.HTTPSeeOther(new_url)

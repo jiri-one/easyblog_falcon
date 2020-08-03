@@ -1,7 +1,7 @@
 from settings import posts_per_page, templatelookup
 
 def render_template(req, resp, resource, template):
-	"""@falcon.after decorator for Mako templates - works on GET method"""
+	"""@falcon.after decorator for Mako templates - works on GET and POST methodes"""
 	mytemplate = templatelookup.get_template(template)
 	resp.body = mytemplate.render(data=resp.body)
 	
