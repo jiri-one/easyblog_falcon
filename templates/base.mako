@@ -13,7 +13,7 @@
 <header>
 <a title="Přepnout stránku na český jazyk" href="/?lang=cze"><img align="right" class="img_flag" src="/templates/flag_cze.svg"/></a>
 <a title="Switch site to english language" href="/?lang=eng"><img align="right" class="img_flag" src="/templates/flag_eng.svg"/></a>
-<div class="title">·:[ <a href="http://jiri.one/">Jiřího blog</a> ]:·</div>
+<div class="title">·:[ <a href="/">Jiřího blog</a> ]:·</div>
 </header>
 <nav>
 <div class="menu">

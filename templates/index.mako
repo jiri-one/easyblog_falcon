@@ -20,7 +20,7 @@
      % if last_date != post["when"].split()[0][0:10]:
           <div class="date">${format_date(post["when"].split()[0][0:10])}</div>  
      % endif
-     <div class="titulek"><a href="${post["url"]["cze"]}">${post["header"]["cze"]}</a></div>
+     <div class="titulek"><a href="/${post["url"]["cze"]}">${post["header"]["cze"]}</a></div>
      <div class="meta">
      <div class="zarazen_do">Zařazen do: <a href="${post["topics"]["cze"]}"> ${post["topics"]["cze"]} </a> — Jiri @ ${post["when"].split()[1][0:5]}</div></div>
      <div class="obsah">${post["content"]["cze"]}</div>

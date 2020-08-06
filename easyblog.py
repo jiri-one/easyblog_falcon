@@ -80,6 +80,16 @@ class EasyBlog(object):
 		searched_word = req.get_param("search")
 		new_url = falcon.uri.encode(f"/hledej/{searched_word}")
 		raise falcon.HTTPSeeOther(new_url)
+	
+	@falcon.after(render_template, "post.mako")
+	def on_get_view(self, req, resp, post_url):
+		"""Handles requests (/post_url)"""
+		try:
+			post = list(posts.get_all(post_url, index="url_cze").run(conn))[0]
+		except:
+			post = ""
+
+		resp.body = {"post": post, "topics": self.all_topics}	
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
@@ -101,6 +111,8 @@ app.add_route('/search/{searched_word}', easyblog, suffix="search")
 app.add_route('/hledej/{searched_word}', easyblog, suffix="search")
 app.add_route('/search/{searched_word}/page/{page_number:int}', easyblog, suffix="search_page")
 app.add_route('/hledej/{searched_word}/strana/{page_number:int}', easyblog, suffix="search_page")
+app.add_route('/{post_url}', easyblog, suffix="view")
+
 
 #from hupper import start_reloader
 from waitress import serve
