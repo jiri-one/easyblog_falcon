@@ -19,7 +19,6 @@
 #page_count = ceil(posts_count / posts_per_page)
 #pages = range(1,page_count+1)
 
-last_date = None
 months = {'cze': ('Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'), 'eng': ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')}
 
 def format_date(date):

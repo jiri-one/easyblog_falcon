@@ -19,8 +19,8 @@
 <div class="menu">
 <b>O autorovi:</b><br>
 <a class="topics" href="http://jiri.one/o-mne">O mně</a>
-<p><br>
-<b>Témata:</b><br>
+<br>
+<b>Témata:</b>
 <div class="topics">
 % for topic in data["topics"]:
 % if topic["id"] != len(data["topics"]):
@@ -30,9 +30,9 @@
 % endif
 % endfor
 </div><!-- .topics-->
-</p><br>
+<br>
 <div class="search_form">
-<b>Vyhledávání:</b><br>
+<b>Vyhledávání:</b>
 <form method="post" action="/hledej" accept-charset="UTF-8">
 <input type="text" id="vyhledavani" name="search" size="15"><br>
 <button id="Vyhledat" name="Vyhledat">Vyhledat</button>

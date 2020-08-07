@@ -1,7 +1,10 @@
 <%inherit file="base.mako"/>
+<%
+     last_date = None
+%>
 
 % for post in data["posts"]:
-     % if mako_imp.last_date != post["when"].split()[0][0:10]:
+     % if last_date != post["when"].split()[0][0:10]:
           <div class="date">${mako_imp.format_date(post["when"].split()[0][0:10])}</div>  
      % endif
      <div class="titulek"><a href="/${post["url"]["cze"]}">${post["header"]["cze"]}</a></div>
@@ -11,7 +14,7 @@
      <div class="feedback" align="right">Počet komentářů: ${post["comments"]}</div> 
      <div class="postend">• • •</div>
      <% 
-          mako_imp.last_date = post["when"].split()[0][0:10]
+          last_date = post["when"].split()[0][0:10]
      %>
 % endfor
 
