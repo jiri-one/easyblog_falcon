@@ -1,6 +1,7 @@
 import falcon
 from math import ceil
-from settings import file_path, posts_per_page, topics, posts, conn, r
+from datetime import datetime
+from settings import file_path, posts_per_page, topics, posts, comments, conn, r
 from helpers import render_template, slice_posts
 
 class EasyBlog(object):
@@ -87,9 +88,21 @@ class EasyBlog(object):
 		try:
 			post = list(posts.get_all(post_url, index="url_cze").run(conn))[0]
 		except:
-			post = ""
-
-		resp.body = {"post": post, "topics": self.all_topics}	
+			raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
+		post_comments = list(comments.filter(r.row["url"] == post_url).order_by(r.desc("when")).run(conn))
+		resp.body = {"post": post, "topics": self.all_topics, "comments": post_comments}
+	
+	def on_post_view(self, req, resp, post_url):
+		comments.insert({
+			"header": req.get_param("comment_header"),
+			"nick": req.get_param("comment_nick"),
+			"content": req.get_param("comment_content"),
+			"when": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+			"url": post_url }).run(conn)
+		# now we need to update number of comments by the post
+		post_id = list(posts.get_all(post_url, index="url_cze").run(conn))[0]["id"] # first to get id of post from url
+		posts.get(post_id).update({"comments": r.row["comments"]+1}).run(conn) # then to increment number +1
+		raise falcon.HTTPSeeOther(f"/{post_url}")
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
