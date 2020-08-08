@@ -61,7 +61,6 @@ class EasyBlog(object):
 		posts_count = posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).count().run(conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))	
-		print(regex_word)
 		resp.body = {"posts": results, "topics": self.all_topics, "added_url": search_url, "pages": pages}
 			
 	@falcon.after(render_template, "index.mako")
@@ -93,16 +92,19 @@ class EasyBlog(object):
 		resp.body = {"post": post, "topics": self.all_topics, "comments": post_comments}
 	
 	def on_post_view(self, req, resp, post_url):
-		comments.insert({
-			"header": req.get_param("comment_header"),
-			"nick": req.get_param("comment_nick"),
-			"content": req.get_param("comment_content"),
-			"when": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-			"url": post_url }).run(conn)
-		# now we need to update number of comments by the post
-		post_id = list(posts.get_all(post_url, index="url_cze").run(conn))[0]["id"] # first to get id of post from url
-		posts.get(post_id).update({"comments": r.row["comments"]+1}).run(conn) # then to increment number +1
-		raise falcon.HTTPSeeOther(f"/{post_url}")
+		if req.get_param("antispam") == 5:
+			comments.insert({
+				"header": req.get_param("comment_header"),
+				"nick": req.get_param("comment_nick"),
+				"content": req.get_param("comment_content"),
+				"when": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+				"url": post_url }).run(conn)
+			# now we need to update number of comments by the post
+			post_id = list(posts.get_all(post_url, index="url_cze").run(conn))[0]["id"] # first to get id of post from url
+			posts.get(post_id).update({"comments": r.row["comments"]+1}).run(conn) # then to increment number +1
+			raise falcon.HTTPSeeOther(f"/{post_url}")
+		else:
+			raise falcon.HTTPForbidden(title="Neprošel jsi antipspamovou kontrolou.\n", description="Stiskni tlačítko ZPĚT a zkus to znovu.")
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)

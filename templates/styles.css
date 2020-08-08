@@ -52,6 +52,7 @@ nav {
   padding: 20px;
   text-align: center;
 }
+
 @media (min-width: 720px) {
   nav .menu {
     position: -webkit-sticky;
@@ -106,16 +107,19 @@ a:hover { color: #3c67be; }
 .img_flag {
     margin-left: 5px
 }
+
 @media (max-width: 720px) {
 .nav-other {
   display: none;
+  }
 }
-}
+
 @media (min-width: 720px) {
 .footer-other {
   display: none;
+  }
 }
-}
+
 .footer-other {
     text-align: center;
 }
@@ -128,3 +132,62 @@ a:hover { color: #3c67be; }
     text-decoration: none;
     border: 1px solid #3c67be;
 }
+
+#comment_header {background-color: #E4E4E4;}
+
+.comment_title {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.comment_form input[type=text], textarea {
+  width: 100%;
+  padding: 5px 10px;
+  margin: 5px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 24px;
+}
+
+@media (min-width: 720px) {
+  .comment_form input[type=text], textarea {
+    width: 600px;
+}
+
+.search_form input[type=text] {
+  width: 100%;
+  padding: 5px 10px;
+  margin: 2px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 24px;
+}
+
+.comment_form input[type=submit], .search_form input[type=submit] {
+  width: 200px;
+  background-color: #c5d7fb;
+  color: black;
+  padding: 7px 15px;
+  margin: 8px 0;
+  border: 1px solid #3c67be;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.comment_form input[type=submit]:hover, .search_form input[type=submit]:hover {
+  background-color: #3c67be;
+  color: #FFFFFF;
+  font-size: 24px;
+}
+
+.comment_form {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+

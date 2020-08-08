@@ -8,33 +8,31 @@ ${data["post"]["content"]["cze"]}<br>
 <div class="postend">• • •</div>
 
 % if data["post"]["comments"] > 0:
-	<div id="komentare"><h1>Komentáře:</h1></div>
+	<div id="komentare"><div class="comment_title">Komentáře:</div></div>
 	% for comment in data["comments"]:
-		<div id="nadpis_commentu">
+		<div id="comment_header">
 		<b>${comment["header"]}</b><br>
 		Komentář od <b>${comment["nick"]}</b> — ${mako_imp.format_date(comment["when"].split()[0][0:10])} @ ${comment["when"].split()[1][0:5]}
 		</div>
 		${comment["content"]}<br><br>
 	% endfor	
 % endif
-<h1>Nový komentář:</h1>
+<hr>
+<div class="comment_title">Nový komentář:</div>
+<div class="comment_form">
+<form method="post" action="" accept-charset="UTF-8">
+	<label for="comment_header">Nadpis:</label><br>
+	<input type="text" name="comment_header" placeholder="Nadpis komentáře.."><br>
 
-<div id="komentare_obsah">
-<form action="" method="post">
-<div class="konecobtekani">
-<label>Nadpis</label>
-<input type="text" id="nadpis_komentare" name="comment_header" size="50"></div>
-<div class="konecobtekani">
-<label>Nick</label>
-<input type="text" id="nick" name="comment_nick" size="50"></div>
-<div class="konecobtekani">
-<label>Antispam</label>
-<input name="antispam" value="Sem napište ČÍSLEM součet čísel dvě a tři (tedy pět ;-))" class="cleardefault" type="text" id="antispam" size="50"></div>
-<div class="konecobtekani">
-<label>Obsah</label>
-<textarea rows="8" id="obsah" name="comment_content" cols="50"></textarea></div>
-<div class="konecobtekani">
-<button id="Odeslat" name="Odeslat">Odeslat</button></div>
+	<label for="comment_nick">Nick:</label><br>
+	<input type="text" name="comment_nick" placeholder="Tvoje přezdívka.."><br>
+	
+	<label for="antispam">Antispam:</label><br>
+	<input type="text" name="antispam" placeholder="Napiš číslem pětku."><br>
+	
+	<label for="comment_content">Text komentáře:</label><br>
+	<textarea name="comment_content" placeholder="Napiš něco.." style="height:200px"></textarea><br>
+
+	<input type="submit" value="Odeslat">
 </form>
 </div>
-<br>
