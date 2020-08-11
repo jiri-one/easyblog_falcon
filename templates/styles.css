@@ -108,6 +108,10 @@ a:hover { color: #3c67be; }
     margin-left: 5px
 }
 
+.other-links {
+  border: 1px solid #3c67be;
+  }
+
 @media (max-width: 720px) {
 .nav-other {
   display: none;

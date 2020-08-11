@@ -18,7 +18,7 @@
 <nav>
 <div class="menu">
 <b>O autorovi:</b><br>
-<a class="topics" href="http://jiri.one/o-mne">O mně</a>
+<a class="topics" href="/o-mne">O mně</a>
 <br>
 <b>Témata:</b>
 <div class="topics">
@@ -37,12 +37,32 @@
 <input type="text" id="vyhledavani" name="search"><br>
 <input type="submit" value="Vyhledat">
 </form></div><!-- .search_form-->
+<br>
+<div class="nav-other">
+	<b>Zajímavé odkazy:</b>
+	<div class="other-links">
+	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_new">Mé GIT repozitáře</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_new">EasyDict.jiri.one</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_new">LinuxGames.cz</a>
+	<a href="https://archlinux.org" target="_new">ArchLinux.org</a>
+	</div>
+</div>
+
 </div><!-- .menu-->
 </nav>
 <main>
 <div id="middle">
 ${self.body()}
 </div><!-- #middle-->
+<div class="footer-other"> <!-- this links are here second time, because they are down in responsive view -->
+	<br><b>Zajímavé odkazy:</b>
+	<div class="other-links">
+	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_new">Mé GIT repozitáře</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_new">EasyDict.jiri.one</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_new">LinuxGames.cz</a>
+	<a href="https://archlinux.org" target="_new">ArchLinux.org</a>
+	</div>
+</div>
 </main>
 <footer>Jiří Němec, 2020</footer>
 </body>
