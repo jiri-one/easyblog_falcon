@@ -32,7 +32,7 @@ class EasyBlog(object):
 	def on_get_topic(self, req, resp, topic_url):
 		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
 		start, end = slice_posts(1) # number one is here hardcoded, because index of topic is always page one
-		topic = topics.filter(r.row["url"]["cze"] == topic_url).order_by("id").run(conn)[0]["topic"]["cze"]
+		topic = list(topics.filter(r.row["url"]["cze"] == topic_url).run(conn))[0]["topic"]["cze"]
 		topic_posts = list(posts.filter(lambda post: post["topics"]["cze"].match(topic)).order_by(r.desc("when")).slice(start, end).run(conn))
 		topic_url = "/tema/" + topic_url + "/"
 		posts_count = posts.filter(lambda post: post["topics"]["cze"].match(topic)).count().run(conn)
@@ -44,7 +44,7 @@ class EasyBlog(object):
 	def on_get_topic_page(self, req, resp, topic_url, page_number):
 		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
 		start, end = slice_posts(page_number)
-		topic = topics.filter(r.row["url"]["cze"] == topic_url).order_by("id").run(conn)[0]["topic"]["cze"]
+		topic = list(topics.filter(r.row["url"]["cze"] == topic_url).run(conn))[0]["topic"]["cze"]
 		topic_posts = list(posts.filter(lambda post: post["topics"]["cze"].match(topic)).order_by(r.desc("when")).slice(start, end).run(conn))
 		topic_url = "/tema/" + topic_url + "/"
 		posts_count = posts.filter(lambda post: post["topics"]["cze"].match(topic)).count().run(conn)

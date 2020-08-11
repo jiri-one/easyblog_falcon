@@ -23,11 +23,11 @@
 <b>Témata:</b>
 <div class="topics">
 % for topic in data["topics"]:
-% if topic["id"] != len(data["topics"]):
-	<a style="border-bottom: 1px solid #3c67be;" href="/tema/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
-% else:
-	<a href="/topic/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
-% endif
+	% if topic["id"] != len(data["topics"]): ## it is here, because last topic is without border-bottom
+		<a style="border-bottom: 1px solid #3c67be;" href="/tema/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
+	% else: ## this is the last topic
+		<a href="/topic/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a> 
+	% endif
 % endfor
 </div><!-- .topics-->
 <br>
