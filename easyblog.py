@@ -105,6 +105,10 @@ class EasyBlog(object):
 			raise falcon.HTTPSeeOther(f"/{post_url}")
 		else:
 			raise falcon.HTTPForbidden(title="Neprošel jsi antipspamovou kontrolou.\n", description="Stiskni tlačítko ZPĚT a zkus to znovu.")
+	
+	@falcon.after(render_template, "new_post.mako")
+	def on_get_new_post(self, req, resp):
+		resp.body = {"topics": self.all_topics}
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
@@ -127,6 +131,7 @@ app.add_route('/hledej/{searched_word}', easyblog, suffix="search")
 app.add_route('/search/{searched_word}/page/{page_number:int}', easyblog, suffix="search_page")
 app.add_route('/hledej/{searched_word}/strana/{page_number:int}', easyblog, suffix="search_page")
 app.add_route('/{post_url}', easyblog, suffix="view")
+app.add_route('/new_post', easyblog, suffix="new_post")
 
 
 #from hupper import start_reloader

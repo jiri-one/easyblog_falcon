@@ -14,7 +14,7 @@ ${data["post"]["content"]["cze"]}<br>
 		Komentář od <b>${comment["nick"]}</b> — ${mako_imp.format_date(comment["when"].split()[0][0:10])} @ ${comment["when"].split()[1][0:5]}
 		</div>
 		${comment["content"]}<br><br>
-	% endfor	
+	% endfor
 % endif
 <hr>
 <div class="comment_title">Nový komentář:</div>

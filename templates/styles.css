@@ -127,15 +127,9 @@ a:hover { color: #3c67be; }
 .footer-other {
     text-align: center;
 }
-.footer-other a {
-    display: block;
-    padding: 2px 0px 2px 10px;
-    margin: 0px;
-    background-color: #c5d7fb;
-    color: #000000;
-    text-decoration: none;
-    border: 1px solid #3c67be;
-}
+
+.footer-other a:link, #sideLeft a:visited { display: block; padding: 2px 0px 2px 10px; margin: 0px; background-color: #c5d7fb; color: #000000; text-decoration: none; }
+.footer-other a:hover { background-color: #3c67be; color: #FFFFFF; }
 
 #comment_header {background-color: #E4E4E4;}
 
@@ -158,6 +152,10 @@ a:hover { color: #3c67be; }
 @media (min-width: 720px) {
   .comment_form input[type=text], textarea {
     width: 600px;
+}
+  .topics_admin {
+  display: inline;
+}
 }
 
 .search_form input[type=text] {
