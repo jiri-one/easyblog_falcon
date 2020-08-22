@@ -9,7 +9,7 @@ ${data["post"]["content"]["cze"]}<br>
 % if data["post"]["comments"] > 0:
 	<div id="komentare"><div class="comment_title">Komentáře:</div></div>
 	% for comment in data["comments"]:
-		<div id="comment_header">
+		<div class="comment_header">
 		<b>${comment["header"]}</b><br>
 		Komentář od <b>${comment["nick"]}</b> — ${mako_imp.format_date(comment["when"].split()[0][0:10])} @ ${comment["when"].split()[1][0:5]}
 		</div>
