@@ -7,7 +7,7 @@
 	
 	% for topic in data["topics"]:
 		<div class="topics_admin"><span style="white-space: nowrap;">
-		<input type="checkbox" id="" value="${topic["url"]["cze"]}" name="${topic["url"]["cze"]}">
+		<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="${topic["url"]["cze"]}">
 		<label for="${topic["url"]["cze"]}"> ${topic["topic"]["cze"]}</label><span></div>
 	% endfor
 

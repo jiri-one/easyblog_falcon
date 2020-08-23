@@ -2,7 +2,7 @@ import falcon
 from math import ceil
 from datetime import datetime
 from settings import file_path, posts_per_page, topics, posts, comments, conn, r
-from helpers import render_template, slice_posts
+from helpers import render_template, slice_posts, create_url
 
 class EasyBlog(object):
 	def __init__(self):
@@ -109,6 +109,25 @@ class EasyBlog(object):
 	@falcon.after(render_template, "new_post.mako")
 	def on_get_new_post(self, req, resp):
 		resp.body = {"topics": self.all_topics}
+		
+	def on_post_new_post(self, req, resp):
+		post_header = req.get_param("post_header")
+		post_url = create_url(req.get_param("post_header"))
+		post_content = req.get_param("post_content")
+		post_topics = ""
+		for key in req.params.keys():
+			if not(key == "post_header" or key == "post_content"): # the rule is: if key is not post_header or post_content
+				post_topics = post_topics + req.params[key] + ";"
+		posts.insert({
+				'comments': 0,
+				'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+				'url': {"cze": post_url},
+				'header': {"cze": post_header}, 
+				'content': {"cze": post_content},
+				'topics': {"cze": post_topics}
+				}).run(conn)
+		raise falcon.HTTPSeeOther("/new_post")
+		
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
