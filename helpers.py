@@ -21,3 +21,10 @@ def create_url(header):
 	splited_header = [i for i in splited_header if i] # list comprehension for remove empty strings from list
 	url = "-".join(splited_header) # and finaly join the list splited_header with "-"
 	return url
+
+class Authorize(object):
+	def __init__(self):
+		print("tady nám to funguje")
+
+	def __call__(self, req, resp, resource, params):
+		print(req, resp, resource, params)

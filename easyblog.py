@@ -2,7 +2,7 @@ import falcon
 from math import ceil
 from datetime import datetime
 from settings import file_path, posts_per_page, topics, posts, comments, conn, r
-from helpers import render_template, slice_posts, create_url
+from helpers import render_template, slice_posts, create_url, Authorize
 
 class EasyBlog(object):
 	def __init__(self):
@@ -106,14 +106,12 @@ class EasyBlog(object):
 		else:
 			raise falcon.HTTPForbidden(title="Neprošel jsi antipspamovou kontrolou.\n", description="Stiskni tlačítko ZPĚT a zkus to znovu.")
 	
+	@falcon.before(Authorize())
 	@falcon.after(render_template, "new_post.mako")
 	def on_get_new_post(self, req, resp):
 		resp.body = {"topics": self.all_topics}
 		
 	def on_post_new_post(self, req, resp):
-		post_header = req.get_param("post_header")
-		post_url = create_url(req.get_param("post_header"))
-		post_content = req.get_param("post_content")
 		post_topics = ""
 		for key in req.params.keys():
 			if not(key == "post_header" or key == "post_content"): # the rule is: if key is not post_header or post_content
@@ -121,9 +119,9 @@ class EasyBlog(object):
 		posts.insert({
 				'comments': 0,
 				'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-				'url': {"cze": post_url},
-				'header': {"cze": post_header}, 
-				'content': {"cze": post_content},
+				'url': {"cze": create_url(req.get_param("post_header"))},
+				'header': {"cze": req.get_param("post_header")}, 
+				'content': {"cze": req.get_param("post_content")},
 				'topics': {"cze": post_topics}
 				}).run(conn)
 		raise falcon.HTTPSeeOther("/new_post")
