@@ -1,6 +1,7 @@
 import falcon
 from math import ceil
 from datetime import datetime
+from bcrypt import hashpw, checkpw, gensalt
 from settings import file_path, posts_per_page, topics, posts, comments, conn, r
 from helpers import render_template, slice_posts, create_url, Authorize
 
@@ -126,7 +127,19 @@ class EasyBlog(object):
 				}).run(conn)
 		raise falcon.HTTPSeeOther("/new_post")
 	
-		
+	@falcon.after(render_template, "login.mako")
+	def on_get_login(self, req, resp):
+		valid_admin = 0
+		if valid_admin:
+			raise falcon.HTTPSeeOther("/new_post")
+		else:
+			resp.body = {"topics": self.all_topics}
+	
+	def on_post_login(self, req, resp):
+		if checkpw(req.get_param("login"), hashed_login):
+			if checkpw(req.get_param("password"), hashed_password):
+			
+
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
 app.req_options.auto_parse_form_urlencoded = True
@@ -149,6 +162,7 @@ app.add_route('/search/{searched_word}/page/{page_number:int}', easyblog, suffix
 app.add_route('/hledej/{searched_word}/strana/{page_number:int}', easyblog, suffix="search_page")
 app.add_route('/{post_url}', easyblog, suffix="view")
 app.add_route('/new_post', easyblog, suffix="new_post")
+app.add_route('/login', easyblog, suffix="login")
 
 
 #from hupper import start_reloader
