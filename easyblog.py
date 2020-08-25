@@ -125,7 +125,7 @@ class EasyBlog(object):
 				'topics': {"cze": post_topics}
 				}).run(conn)
 		raise falcon.HTTPSeeOther("/new_post")
-		
+	
 		
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
