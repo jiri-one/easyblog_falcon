@@ -9,6 +9,7 @@ from helpers import render_template, slice_posts, create_url, Authorize
 class EasyBlog(object):
 	def __init__(self):
 		self.all_topics = list(topics.order_by("id").run(conn))
+		self.all_authors = list(authors.run(conn))
 		self.ph = argon2.PasswordHasher()
 	
 	@falcon.after(render_template, "index.mako")
@@ -113,8 +114,7 @@ class EasyBlog(object):
 	def on_get_new_post(self, req, resp):
 		if req.get_cookie_values('cookie_uuid'):
 			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			all_authors = list(authors.run(conn))
-			for author in all_authors:
+			for author in self.all_authors:
 				if author["cookie"] == cookie_uuid:
 					resp.body = {"topics": self.all_topics}
 					break
@@ -126,8 +126,7 @@ class EasyBlog(object):
 	def on_post_new_post(self, req, resp):
 		if req.get_cookie_values('cookie_uuid'):
 			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			all_authors = list(authors.run(conn))
-			for author in all_authors:
+			for author in self.all_authors:
 				if author["cookie"] == cookie_uuid:
 					post_topics = ""
 					for key in req.params.keys():
@@ -151,8 +150,7 @@ class EasyBlog(object):
 	def on_get_login(self, req, resp):
 		if req.get_cookie_values('cookie_uuid'):
 			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			all_authors = list(authors.run(conn))
-			for author in all_authors:
+			for author in self.all_authors:
 				if author["cookie"] == cookie_uuid:
 					raise falcon.HTTPSeeOther("/new_post")
 			else:
@@ -160,8 +158,7 @@ class EasyBlog(object):
 		else:
 			resp.body = {"topics": self.all_topics}	
 	def on_post_login(self, req, resp):
-		all_authors = list(authors.run(conn))
-		for author in all_authors:
+		for author in self.all_authors:
 			try:
 				if self.ph.verify(author["login"], req.get_param("login")):
 					if self.ph.verify(author["password"], req.get_param("password")):
@@ -172,6 +169,7 @@ class EasyBlog(object):
 							authors.get(author["id"]).update({"login": self.ph.hash(req.get_param("login"))}).run(conn)
 						if self.ph.check_needs_rehash(author["password"]):
 							authors.get(author["id"]).update({"password": self.ph.hash(req.get_param("password"))}).run(conn)			
+						self.all_authors = list(authors.run(conn))
 						raise falcon.HTTPSeeOther("/new_post")
 			except argon2.exceptions.VerifyMismatchError:
 				resp.status = falcon.HTTP_401
