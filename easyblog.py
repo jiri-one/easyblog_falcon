@@ -209,4 +209,4 @@ app.add_route('/logout', easyblog, suffix="logout")
 from waitress import serve
 #reloader = start_reloader("easyblog.app") #test
 #reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py'])
-serve(app, host='127.0.0.1', port=8080)
+serve(app, host='0.0.0.0', port=8080)
