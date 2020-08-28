@@ -156,7 +156,8 @@ class EasyBlog(object):
 			else:
 				resp.body = {"topics": self.all_topics}
 		else:
-			resp.body = {"topics": self.all_topics}	
+			resp.body = {"topics": self.all_topics}
+
 	def on_post_login(self, req, resp):
 		for author in self.all_authors:
 			try:
