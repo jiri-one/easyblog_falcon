@@ -1,7 +1,7 @@
 <%inherit file="base.mako"/>
 
 <div class="titulek">${data["post"]["header"]["cze"]}</div>
-<div class="meta"><div class="zarazen_do">Zařazen do: ${mako_imp.format_topics(data["post"]["topics"]["cze"], data["topics"])} — Jiri, ${mako_imp.format_date(data["post"]["when"].split()[0][0:10])} @ ${data["post"]["when"].split()[1][0:5]}
+<div class="meta"><div class="zarazen_do">Zařazen do: ${mako_imp.format_topics(data["post"]["topics"]["cze"], data["topics"])} — Jiří, ${mako_imp.format_date(data["post"]["when"].split()[0][0:10])} @ ${data["post"]["when"].split()[1][0:5]}
 </div></div>
 ${data["post"]["content"]["cze"]}<br>
 <div class="postend">• • •</div>

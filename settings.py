@@ -16,7 +16,9 @@ conn = r.connect( "192.168.222.20", 28015).repl()
 topics = r.db("blog_jirione").table("topics")
 posts = r.db("blog_jirione").table("posts")
 comments = r.db("blog_jirione").table("comments")
+authors = r.db("blog_jirione").table("authors")
 
+# authors.insert({"name": "", "password": "", "cookie": ""})
 # blog settings
 posts_per_page = 10 # here you can set post per page, it will everywher in the blog
 
