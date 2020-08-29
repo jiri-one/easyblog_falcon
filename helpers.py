@@ -1,4 +1,4 @@
-from settings import posts_per_page, templatelookup
+from settings import posts_per_page, templatelookup, authors, conn
 import re
 from unidecode import unidecode
 
@@ -22,9 +22,16 @@ def create_url(header):
 	url = "-".join(splited_header) # and finaly join the list splited_header with "-"
 	return url
 
-class Authorize(object):
-	def __init__(self):
-		print("tady nám to funguje")
-
+class Authorize(object): # I will see in the future, if I will need this decorator to be class or just function
+	"""@falcon.before decorator for authorize if successful login - works on GET and POST methodes"""
 	def __call__(self, req, resp, resource, params):
-		print(req, resp, resource, params)
+		if req.get_cookie_values('cookie_uuid'):
+			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
+			for author in list(authors.run(conn)):
+				if author["cookie"] == cookie_uuid:
+					resp.context.authorized = 1
+					break
+			else:
+				resp.context.authorized = 0
+		else:
+			resp.context.authorized = 0		

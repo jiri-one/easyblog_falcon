@@ -9,7 +9,6 @@ from helpers import render_template, slice_posts, create_url, Authorize
 class EasyBlog(object):
 	def __init__(self):
 		self.all_topics = list(topics.order_by("id").run(conn))
-		self.all_authors = list(authors.run(conn))
 		self.ph = argon2.PasswordHasher()
 	
 	@falcon.after(render_template, "index.mako")
@@ -70,7 +69,7 @@ class EasyBlog(object):
 	@falcon.after(render_template, "index.mako")
 	def on_get_search_page(self, req, resp, searched_word, page_number):
 		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
-		start, end = slice_posts(page_number) # number one is here hardcoded, because index is always page one
+		start, end = slice_posts(page_number) # number one is here hardcoded, because search index is always page one
 		regex_word = rf"(?i){searched_word}" # for case insensitivity
 		results = list(posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).slice(start, end).run(conn))
 		search_url = "/hledej/" + searched_word + "/"
@@ -110,56 +109,43 @@ class EasyBlog(object):
 		else:
 			raise falcon.HTTPForbidden(title="Neprošel jsi antipspamovou kontrolou.\n", description="Stiskni tlačítko ZPĚT a zkus to znovu.")
 	
+	@falcon.before(Authorize())
 	@falcon.after(render_template, "new_post.mako")
 	def on_get_new_post(self, req, resp):
-		if req.get_cookie_values('cookie_uuid'):
-			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			for author in self.all_authors:
-				if author["cookie"] == cookie_uuid:
-					resp.body = {"topics": self.all_topics}
-					break
-			else:
-				raise falcon.HTTPSeeOther("/login")
+		if resp.context.authorized == 1:
+			resp.body = {"topics": self.all_topics}
 		else:
 			raise falcon.HTTPSeeOther("/login")		
 
+	@falcon.before(Authorize())
 	def on_post_new_post(self, req, resp):
-		if req.get_cookie_values('cookie_uuid'):
-			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			for author in self.all_authors:
-				if author["cookie"] == cookie_uuid:
-					post_topics = ""
-					for key in req.params.keys():
-						if not(key == "post_header" or key == "post_content"): # the rule is: if key is not post_header or post_content
-							post_topics = post_topics + req.params[key] + ";"
-					posts.insert({
-					'comments': 0,
-					'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-					'url': {"cze": create_url(req.get_param("post_header"))},
-					'header': {"cze": req.get_param("post_header")}, 
-					'content': {"cze": req.get_param("post_content")},
-					'topics': {"cze": post_topics}
-					}).run(conn)
-					raise falcon.HTTPSeeOther("/")				
-			else:
-				raise falcon.HTTPSeeOther("/login")
+		if resp.context.authorized == 1:
+			post_topics = ""
+			for key in req.params.keys():
+				if not(key == "post_header" or key == "post_content"): # the rule is: if key is not post_header or post_content
+					post_topics = post_topics + req.params[key] + ";"
+			posts.insert({
+			'comments': 0,
+			'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+			'url': {"cze": create_url(req.get_param("post_header"))},
+			'header': {"cze": req.get_param("post_header")}, 
+			'content': {"cze": req.get_param("post_content")},
+			'topics': {"cze": post_topics}
+			}).run(conn)
+			raise falcon.HTTPSeeOther("/")			
 		else:
-			raise falcon.HTTPSeeOther("/login")
+			raise falcon.HTTPSeeOther("/login")			
 
+	@falcon.before(Authorize())
 	@falcon.after(render_template, "login.mako")
 	def on_get_login(self, req, resp):
-		if req.get_cookie_values('cookie_uuid'):
-			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			for author in self.all_authors:
-				if author["cookie"] == cookie_uuid:
-					raise falcon.HTTPSeeOther("/new_post")
-			else:
-				resp.body = {"topics": self.all_topics}
+		if resp.context.authorized == 1:
+			raise falcon.HTTPSeeOther("/new_post")
 		else:
 			resp.body = {"topics": self.all_topics}
 
 	def on_post_login(self, req, resp):
-		for author in self.all_authors:
+		for author in list(authors.run(conn)):
 			try:
 				if self.ph.verify(author["login"], req.get_param("login")):
 					if self.ph.verify(author["password"], req.get_param("password")):
@@ -170,7 +156,6 @@ class EasyBlog(object):
 							authors.get(author["id"]).update({"login": self.ph.hash(req.get_param("login"))}).run(conn)
 						if self.ph.check_needs_rehash(author["password"]):
 							authors.get(author["id"]).update({"password": self.ph.hash(req.get_param("password"))}).run(conn)			
-						self.all_authors = list(authors.run(conn))
 						raise falcon.HTTPSeeOther("/new_post")
 			except argon2.exceptions.VerifyMismatchError:
 				resp.status = falcon.HTTP_401
