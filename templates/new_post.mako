@@ -11,8 +11,6 @@
 		<label for="${topic["url"]["cze"]}"> ${topic["topic"]["cze"]}</label><span></div>
 	% endfor
 
-
-
 	<br><br><label for="post_header">Titulek:</label><br>
 	<input type="text" name="post_header" placeholder="Nadpis přístpěvku.." style="width:100%;"><br>
 

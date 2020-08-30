@@ -84,6 +84,7 @@ class EasyBlog(object):
 		new_url = falcon.uri.encode(f"/hledej/{searched_word}")
 		raise falcon.HTTPSeeOther(new_url)
 	
+	@falcon.before(Authorize())
 	@falcon.after(render_template, "post.mako")
 	def on_get_view(self, req, resp, post_url):
 		"""Handles requests (/post_url)"""
@@ -92,16 +93,16 @@ class EasyBlog(object):
 		except:
 			raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
 		post_comments = list(comments.filter(r.row["url"] == post_url).order_by(r.desc("when")).run(conn))
-		resp.body = {"post": post, "topics": self.all_topics, "comments": post_comments}
+		resp.body = {"post": post, "topics": self.all_topics, "comments": post_comments, "authorized": resp.context.authorized}
 	
 	def on_post_view(self, req, resp, post_url):
-		if req.get_param("antispam") == 5:
+		if req.get_param_as_int("antispam") == 5:
 			comments.insert({
 				"header": req.get_param("comment_header"),
 				"nick": req.get_param("comment_nick"),
 				"content": req.get_param("comment_content"),
 				"when": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-				"url": post_url }).run(conn)
+				"url": post_url }).run(conn) # here is problem with later multilanguage version!
 			# now we need to update number of comments by the post
 			post_id = list(posts.get_all(post_url, index="url_cze").run(conn))[0]["id"] # first to get id of post from url
 			posts.get(post_id).update({"comments": r.row["comments"]+1}).run(conn) # then to increment number +1
@@ -151,7 +152,7 @@ class EasyBlog(object):
 					if self.ph.verify(author["password"], req.get_param("password")):
 						new_cookie = str(uuid4())
 						authors.get(author["id"]).update({"cookie": new_cookie}).run(conn)
-						resp.set_cookie('cookie_uuid', new_cookie, max_age=7200, secure=False)
+						resp.set_cookie('cookie_uuid', new_cookie, max_age=72000, secure=False)
 						if self.ph.check_needs_rehash(author["login"]):
 							authors.get(author["id"]).update({"login": self.ph.hash(req.get_param("login"))}).run(conn)
 						if self.ph.check_needs_rehash(author["password"]):
@@ -163,6 +164,79 @@ class EasyBlog(object):
 	def on_get_logout(self, req, resp):
 		resp.unset_cookie('cookie_uuid')
 		raise falcon.HTTPSeeOther("/")
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "delete.mako")	
+	def on_get_delete(self, req, resp, post_url):
+		"""Handles requests (/delete/post_url)"""
+		if resp.context.authorized == 1:
+			try:
+				post = list(posts.get_all(post_url, index="url_cze").run(conn))[0]
+			except:
+				raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
+			post_comments = list(comments.filter(r.row["url"] == post_url).order_by(r.desc("when")).run(conn))
+			resp.body = {"post": post, "topics": self.all_topics, "comments": post_comments}
+			if req.get_param("delete") is not None:
+				if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
+					posts.get_all(post_url, index="url_cze").delete().run(conn)
+					comments.filter(r.row["url"] == post_url).delete().run(conn)
+					raise falcon.HTTPSeeOther("/")
+				else:
+					raise falcon.HTTPSeeOther(f"/{post_url}")
+		else:
+			raise falcon.HTTPSeeOther(f"/{post_url}")			
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "edit.mako")
+	def on_get_edit(self, req, resp, post_url):
+		"""Handles requests (/edit/post_url)"""
+		if resp.context.authorized == 1:
+			try:
+				post = list(posts.get_all(post_url, index="url_cze").run(conn))[0]
+			except:
+				raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
+			resp.body = {"post": post, "topics": self.all_topics}
+	
+	@falcon.before(Authorize())
+	def on_post_edit(self, req, resp, post_url):
+		"""Handles requests (/edit/post_url)"""
+		if resp.context.authorized == 1:
+			post_topics = ""
+			for key in req.params.keys():
+				if not(key == "post_header" or key == "post_content" or key == "post_url"): # the rule is: if key is not post_header or post_content or post_url
+					post_topics = post_topics + req.params[key] + ";"
+			posts.get_all(post_url, index="url_cze").update({
+				'url': {"cze": req.get_param("post_url")},
+				'header': {"cze": req.get_param("post_header")}, 
+				'content': {"cze": req.get_param("post_content")},
+				'topics': {"cze": post_topics}				
+				}).run(conn)
+			comments.filter(r.row["url"] == post_url).update({"url": req.get_param("post_url")}).run(conn)
+			raise falcon.HTTPSeeOther(f"""/{req.get_param("post_url")}""")
+		else:
+			raise falcon.HTTPSeeOther("/login")
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "delete_comment.mako")
+	def on_get_delete_comment(self, req, resp, comment_id):
+		"""Handles requests (/delete_comment/comment_id)"""
+		if resp.context.authorized == 1:
+			try:
+				print("komentář potom")
+				comment = comments.get(comment_id).run(conn)
+			except:
+				raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")
+			resp.body = {"comment": comment, "topics": self.all_topics}
+			if req.get_param("delete") is not None:
+				if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
+					comments.get(comment_id).delete().run(conn)
+					post_id = list(posts.get_all(comment["url"], index="url_cze").run(conn))[0]["id"] # first to get id of post from url
+					posts.get(post_id).update({"comments": r.row["comments"]-1}).run(conn) # then to reduct number -1					
+					raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
+				else:
+					raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
+		else:
+			raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML)
@@ -189,7 +263,9 @@ app.add_route('/{post_url}', easyblog, suffix="view")
 app.add_route('/new_post', easyblog, suffix="new_post")
 app.add_route('/login', easyblog, suffix="login")
 app.add_route('/logout', easyblog, suffix="logout")
-
+app.add_route('/delete/{post_url}', easyblog, suffix="delete")
+app.add_route('/edit/{post_url}', easyblog, suffix="edit")
+app.add_route('/delete_comment/{comment_id}', easyblog, suffix="delete_comment")
 
 #from hupper import start_reloader
 from waitress import serve
