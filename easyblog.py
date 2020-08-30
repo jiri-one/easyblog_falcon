@@ -222,7 +222,6 @@ class EasyBlog(object):
 		"""Handles requests (/delete_comment/comment_id)"""
 		if resp.context.authorized == 1:
 			try:
-				print("komentář potom")
 				comment = comments.get(comment_id).run(conn)
 			except:
 				raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")
