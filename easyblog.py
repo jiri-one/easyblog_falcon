@@ -9,7 +9,6 @@ from helpers import render_template, slice_posts, create_url, Authorize
 class EasyBlog(object):
 	def __init__(self):
 		self.all_topics = list(topics.order_by("id").run(conn))
-		self.ph = argon2.PasswordHasher()
 	
 	@falcon.after(render_template, "index.mako")
 	def on_get(self, req, resp):
@@ -146,17 +145,18 @@ class EasyBlog(object):
 			resp.body = {"topics": self.all_topics}
 
 	def on_post_login(self, req, resp):
+		ph = argon2.PasswordHasher()
 		for author in list(authors.run(conn)):
 			try:
-				if self.ph.verify(author["login"], req.get_param("login")):
-					if self.ph.verify(author["password"], req.get_param("password")):
+				if ph.verify(author["login"], req.get_param("login")):
+					if ph.verify(author["password"], req.get_param("password")):
 						new_cookie = str(uuid4())
 						authors.get(author["id"]).update({"cookie": new_cookie}).run(conn)
 						resp.set_cookie('cookie_uuid', new_cookie, max_age=72000, secure=False)
-						if self.ph.check_needs_rehash(author["login"]):
-							authors.get(author["id"]).update({"login": self.ph.hash(req.get_param("login"))}).run(conn)
-						if self.ph.check_needs_rehash(author["password"]):
-							authors.get(author["id"]).update({"password": self.ph.hash(req.get_param("password"))}).run(conn)			
+						if ph.check_needs_rehash(author["login"]):
+							authors.get(author["id"]).update({"login": ph.hash(req.get_param("login"))}).run(conn)
+						if ph.check_needs_rehash(author["password"]):
+							authors.get(author["id"]).update({"password": ph.hash(req.get_param("password"))}).run(conn)			
 						raise falcon.HTTPSeeOther("/new_post")
 			except argon2.exceptions.VerifyMismatchError:
 				resp.status = falcon.HTTP_401
@@ -196,6 +196,8 @@ class EasyBlog(object):
 			except:
 				raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
 			resp.body = {"post": post, "topics": self.all_topics}
+		else:
+			raise falcon.HTTPSeeOther("/login")		
 	
 	@falcon.before(Authorize())
 	def on_post_edit(self, req, resp, post_url):

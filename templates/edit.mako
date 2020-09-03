@@ -21,9 +21,16 @@
 	<label for="post_header">URL příspěvku:</label><br>
 	<input type="text" name="post_url" style="width:100%;" value="${data["post"]["url"]["cze"]}"><br>
 
-	<label for="post_content">Text příspěvku:</label><br>
-	<textarea name="post_content" style="height:400px; width:100%;">${data["post"]["content"]["cze"]}</textarea><br>
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jodit/3.4.25/jodit.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jodit/3.4.25/jodit.min.js"></script>
 
+	<label for="post_content">Text příspěvku:</label><br>
+	<textarea id="editor" name="post_content" style="height:400px; width:100%;">${data["post"]["content"]["cze"]}</textarea><br>
+	<script>var editor = new Jodit("#editor", {
+	"minHeight": 400,
+	"buttons": "source,,,,,,,brush,|,ul,ol,|,outdent,indent,|,|,image,file,video,table,link,,align,undo,redo,\n,selectall,cut,copy,paste,copyformat,|,hr,symbol,fullsize,print,preview,find"
+	});</script>
+	
 	<input type="submit" value="Odeslat">
 </form>
 </div>
