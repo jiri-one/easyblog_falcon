@@ -2,7 +2,7 @@
 from os import path, chdir
 from glob import glob
 # import RethinkDB
-from rethinkdb import RethinkDB
+from rethinkdb import RethinkDB, errors
 # import mako
 from mako.lookup import TemplateLookup
 
@@ -12,7 +12,10 @@ chdir(cwd)
 
 # RethinkDB settings
 r = RethinkDB()
-conn = r.connect( "192.168.222.20", 28015).repl()
+try:
+    conn = r.connect( "192.168.222.20", 28015)
+except errors.ReqlDriverError:
+    print("Database connection could be established.")
 topics = r.db("blog_jirione").table("topics")
 posts = r.db("blog_jirione").table("posts")
 comments = r.db("blog_jirione").table("comments")

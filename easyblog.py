@@ -268,6 +268,7 @@ app.add_route('/delete/{post_url}', easyblog, suffix="delete")
 app.add_route('/edit/{post_url}', easyblog, suffix="edit")
 app.add_route('/delete_comment/{comment_id}', easyblog, suffix="delete_comment")
 
+
 #from hupper import start_reloader
 from waitress import serve
 #reloader = start_reloader("easyblog.app") #test

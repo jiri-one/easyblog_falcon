@@ -13,7 +13,7 @@ with open('zapisky.csv', encoding="utf-8") as csvfile:
     posts.delete().run(conn)
     reader = 0
     fieldnames = ['cislo', 'url', 'nadpis', 'obsah', 'zadano_kdy', 'pocet_komentaru', 'kategorie']
-    reader = csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=';')
+    reader = csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=',')
     sorted_reader = sorted(reader, key=lambda row: row["zadano_kdy"], reverse=False)
     for row in sorted_reader[:-1]: 
         posts.insert({
@@ -41,10 +41,10 @@ with open('kategorie.csv', encoding="utf-8") as csvfile:
         num_id = num_id + 1
 
 # get from url
-cursor = posts.filter(r.row["url"]["cze"] == "predatori").run(conn)
+#cursor = posts.filter(r.row["url"]["cze"] == "predatori").run(conn)
 
 # add or update; in this case add english version of url
-posts.filter(r.row["url"]["cze"] == "predatori").update({"url": {"eng": "predators"}}).run(conn)
+#posts.filter(r.row["url"]["cze"] == "predatori").update({"url": {"eng": "predators"}}).run(conn)
 
 # just add is with .append
 # delete is with .delete
