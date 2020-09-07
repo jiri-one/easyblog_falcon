@@ -13,12 +13,13 @@ class EasyBlog(object):
 	@falcon.after(render_template, "index.mako")
 	def on_get(self, req, resp):
 		"""Handles GET requests on index (/)"""
+		db = req.context.db
 		start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
-		index_posts = list(req.context.posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn))
-		posts_count = req.context.posts.count().run(req.context.conn)
+		index_posts = list(db.posts.order_by(r.desc("when")).slice(start, end).run(db.conn))
+		posts_count = db.posts.count().run(db.conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))		
-		resp.body = {"posts": index_posts, "topics": req.context.topics, "pages": pages}
+		resp.body = {"posts": index_posts, "topics": db.topics, "pages": pages}
 	
 	@falcon.after(render_template, "index.mako")
 	def on_get_page(self, req, resp, page_number):

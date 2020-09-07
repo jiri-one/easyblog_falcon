@@ -34,6 +34,17 @@ class Authorize(object): # I will see in the future, if I will need this decorat
 					req.context.authorized = 1
 					break
 
+class DB_Setter(object):
+	r = RethinkDB()
+	try:
+		conn = r.connect( "192.168.222.20", 28015)
+		topics = list(r.db("blog_jirione").table("topics").order_by("id").run(conn))
+		posts = r.db("blog_jirione").table("posts")
+		comments = r.db("blog_jirione").table("comments")
+		authors = r.db("blog_jirione").table("authors")			
+	except errors.ReqlDriverError:
+		print("Database connection could be established.")	
+
 class RethinkDBConnector(object):
 	def process_request(self, req, resp):
 		"""Process the request before routing it.
@@ -71,15 +82,7 @@ class RethinkDBConnector(object):
 		        method as keyword arguments.
 		"""
 		print("první test")
-		r = RethinkDB()
-		try:
-			req.context.conn = r.connect( "192.168.222.20", 28015)
-		except errors.ReqlDriverError:
-			print("Database connection could be established.")
-		req.context.topics = list(r.db("blog_jirione").table("topics").order_by("id").run(req.context.conn))
-		req.context.posts = r.db("blog_jirione").table("posts")
-		req.context.comments = r.db("blog_jirione").table("comments")
-		req.context.authors = r.db("blog_jirione").table("authors")
+		req.context.db = DB_Setter
 
 	def process_response(self, req, resp, resource, req_succeeded):
 		"""Post-processing of the response (after routing).
@@ -97,6 +100,6 @@ class RethinkDBConnector(object):
 		print("zavíráme")
 		print(resource)
 		try:
-			req.context.conn.close()
+			req.context.db.conn.close()
 		except AttributeError:
 			pass		
