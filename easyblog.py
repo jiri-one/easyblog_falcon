@@ -4,7 +4,7 @@ from datetime import datetime
 import argon2
 from uuid import uuid4
 from settings import file_path, posts_per_page, topics, posts, comments, authors, conn, r
-from helpers import render_template, slice_posts, create_url, Authorize
+from helpers import render_template, slice_posts, create_url, Authorize, RethinkDBConnector
 
 class EasyBlog(object):
 	def __init__(self):
@@ -14,11 +14,11 @@ class EasyBlog(object):
 	def on_get(self, req, resp):
 		"""Handles GET requests on index (/)"""
 		start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
-		index_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(conn))
-		posts_count = posts.count().run(conn)
+		index_posts = list(req.context.posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn))
+		posts_count = req.context.posts.count().run(req.context.conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))		
-		resp.body = {"posts": index_posts, "topics": self.all_topics, "pages": pages}
+		resp.body = {"posts": index_posts, "topics": req.context.topics, "pages": pages}
 	
 	@falcon.after(render_template, "index.mako")
 	def on_get_page(self, req, resp, page_number):
@@ -240,7 +240,7 @@ class EasyBlog(object):
 			raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
-app = falcon.API(media_type=falcon.MEDIA_HTML)
+app = falcon.API(media_type=falcon.MEDIA_HTML,middleware=RethinkDBConnector())
 app.req_options.auto_parse_form_urlencoded = True
 app.resp_options.secure_cookies_by_default = False
 app.add_static_route("/templates", file_path("templates"), downloadable=True, fallback_filename=None)

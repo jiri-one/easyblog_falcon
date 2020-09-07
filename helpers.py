@@ -1,6 +1,7 @@
 from settings import posts_per_page, templatelookup, authors, conn
 import re
 from unidecode import unidecode
+from rethinkdb import RethinkDB, errors
 
 def render_template(req, resp, resource, template):
 	"""@falcon.after decorator for Mako templates - works on GET and POST methodes"""
@@ -25,11 +26,77 @@ def create_url(header):
 class Authorize(object): # I will see in the future, if I will need this decorator to be class or just function
 	"""@falcon.before decorator for authorize if successful login - works on GET and POST methodes"""
 	def __call__(self, req, resp, resource, params):
-		resp.context.authorized = 0
+		req.context.authorized = 0
 		if req.get_cookie_values('cookie_uuid'):
 			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
 			for author in list(authors.run(conn)):
 				if author["cookie"] == cookie_uuid:
-					resp.context.authorized = 1
+					req.context.authorized = 1
 					break
 
+class RethinkDBConnector(object):
+	def process_request(self, req, resp):
+		"""Process the request before routing it.
+
+		Note:
+		    Because Falcon routes each request based on req.path, a
+		    request can be effectively re-routed by setting that
+		    attribute to a new value from within process_request().
+
+		Args:
+		    req: Request object that will eventually be
+		        routed to an on_* responder method.
+		    resp: Response object that will be routed to
+		        the on_* responder.
+		"""
+		pass
+
+	def process_resource(self, req, resp, resource, params):
+		"""Process the request after routing.
+
+		Note:
+		    This method is only called when the request matches
+		    a route to a resource.
+
+		Args:
+		    req: Request object that will be passed to the
+		        routed responder.
+		    resp: Response object that will be passed to the
+		        responder.
+		    resource: Resource object to which the request was
+		        routed.
+		    params: A dict-like object representing any additional
+		        params derived from the route's URI template fields,
+		        that will be passed to the resource's responder
+		        method as keyword arguments.
+		"""
+		print("první test")
+		r = RethinkDB()
+		try:
+			req.context.conn = r.connect( "192.168.222.20", 28015)
+		except errors.ReqlDriverError:
+			print("Database connection could be established.")
+		req.context.topics = list(r.db("blog_jirione").table("topics").order_by("id").run(req.context.conn))
+		req.context.posts = r.db("blog_jirione").table("posts")
+		req.context.comments = r.db("blog_jirione").table("comments")
+		req.context.authors = r.db("blog_jirione").table("authors")
+
+	def process_response(self, req, resp, resource, req_succeeded):
+		"""Post-processing of the response (after routing).
+
+		Args:
+		    req: Request object.
+		    resp: Response object.
+		    resource: Resource object to which the request was
+		        routed. May be None if no route was found
+		        for the request.
+		    req_succeeded: True if no exceptions were raised while
+		        the framework processed and routed the request;
+		        otherwise False.
+		"""
+		print("zavíráme")
+		print(resource)
+		try:
+			req.context.conn.close()
+		except AttributeError:
+			pass		
