@@ -11,7 +11,6 @@ from glob import glob
 cwd = path.dirname(path.abspath(__file__))
 chdir(cwd)
 
-
 # file path helper
 def file_path(file_name):
 	"""This function return full absolute path of given file_name, but it works correctly only when the filename is unique in all folders and subfolders!!!"""
@@ -20,8 +19,8 @@ def file_path(file_name):
 
 def render_template(req, resp, resource, template):
 	"""@falcon.after decorator for Mako templates - works on GET and POST methodes"""
-	all_topics = list(topics.order_by("id").run(req.context.conn))
-	resp.body["topics"] = all_topics
+	all_topics = list(topics.order_by("id").run(req.context.conn)) # this line and
+	resp.body["topics"] = all_topics # this line are here because we need refresh topic everytime, so is best to do in on one place
 	mytemplate = templatelookup.get_template(template)
 	resp.body = mytemplate.render(data=resp.body)
 	

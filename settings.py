@@ -21,4 +21,5 @@ templatelookup = TemplateLookup(directories=['templates'], module_directory='/tm
 #### my notes
 # I created secondary index for CZE url
 # posts.index_create("url_cze", r.row["url"]["cze"]).run(conn)
+#### and how to insert new author
 # authors.insert({"name": "", "password": "", "cookie": ""})
