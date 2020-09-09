@@ -235,6 +235,14 @@ class EasyBlog(object):
 					raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
 		else:
 			raise falcon.HTTPSeeOther("/login")
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "topics_admin.mako")
+	def on_get_topics_admin(self, req, resp):
+		if resp.context.authorized == 1:
+			resp.body = {}
+		else:
+			raise falcon.HTTPSeeOther("/login")				
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
@@ -264,6 +272,7 @@ app.add_route('/logout', easyblog, suffix="logout")
 app.add_route('/delete/{post_url}', easyblog, suffix="delete")
 app.add_route('/edit/{post_url}', easyblog, suffix="edit")
 app.add_route('/delete_comment/{comment_id}', easyblog, suffix="delete_comment")
+app.add_route('/topics_admin', easyblog, suffix="topics_admin")
 
 
 #from hupper import start_reloader
