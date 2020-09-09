@@ -224,7 +224,7 @@ class EasyBlog(object):
 				comment = comments.get(comment_id).run(req.context.conn)
 			except:
 				raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")
-			resp.body = {"comment": comment, "topics": all_topics}
+			resp.body = {"comment": comment}
 			if req.get_param("delete") is not None:
 				if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
 					comments.get(comment_id).delete().run(req.context.conn)
