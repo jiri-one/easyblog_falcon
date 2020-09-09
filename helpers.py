@@ -1,10 +1,26 @@
-from settings import posts_per_page, templatelookup, authors, conn
+from settings import posts_per_page, templatelookup, topics, authors, r, rethinkdb_ip, rethinkdb_port
 import re
 from unidecode import unidecode
-from rethinkdb import RethinkDB, errors
+from rethinkdb.errors import ReqlDriverError
+from falcon.errors import HTTPError
+# import to set current working directory
+from os import path, chdir
+from glob import glob
+
+# set current working directory
+cwd = path.dirname(path.abspath(__file__))
+chdir(cwd)
+
+# file path helper
+def file_path(file_name):
+	"""This function return full absolute path of given file_name, but it works correctly only when the filename is unique in all folders and subfolders!!!"""
+	file_abs_path = path.abspath(glob(f"**/{file_name}", recursive=True)[0])
+	return file_abs_path
 
 def render_template(req, resp, resource, template):
 	"""@falcon.after decorator for Mako templates - works on GET and POST methodes"""
+	all_topics = list(topics.order_by("id").run(req.context.conn))
+	resp.body["topics"] = all_topics
 	mytemplate = templatelookup.get_template(template)
 	resp.body = mytemplate.render(data=resp.body)
 	
@@ -26,80 +42,24 @@ def create_url(header):
 class Authorize(object): # I will see in the future, if I will need this decorator to be class or just function
 	"""@falcon.before decorator for authorize if successful login - works on GET and POST methodes"""
 	def __call__(self, req, resp, resource, params):
-		req.context.authorized = 0
+		resp.context.authorized = 0
 		if req.get_cookie_values('cookie_uuid'):
 			cookie_uuid = req.get_cookie_values('cookie_uuid')[0]
-			for author in list(authors.run(conn)):
+			for author in list(authors.run(req.context.conn)):
 				if author["cookie"] == cookie_uuid:
-					req.context.authorized = 1
+					resp.context.authorized = 1
 					break
 
-class DB_Setter(object):
-	r = RethinkDB()
-	try:
-		conn = r.connect( "192.168.222.20", 28015)
-		topics = list(r.db("blog_jirione").table("topics").order_by("id").run(conn))
-		posts = r.db("blog_jirione").table("posts")
-		comments = r.db("blog_jirione").table("comments")
-		authors = r.db("blog_jirione").table("authors")			
-	except errors.ReqlDriverError:
-		print("Database connection could be established.")	
-
 class RethinkDBConnector(object):
-	def process_request(self, req, resp):
-		"""Process the request before routing it.
-
-		Note:
-		    Because Falcon routes each request based on req.path, a
-		    request can be effectively re-routed by setting that
-		    attribute to a new value from within process_request().
-
-		Args:
-		    req: Request object that will eventually be
-		        routed to an on_* responder method.
-		    resp: Response object that will be routed to
-		        the on_* responder.
-		"""
-		pass
-
 	def process_resource(self, req, resp, resource, params):
-		"""Process the request after routing.
-
-		Note:
-		    This method is only called when the request matches
-		    a route to a resource.
-
-		Args:
-		    req: Request object that will be passed to the
-		        routed responder.
-		    resp: Response object that will be passed to the
-		        responder.
-		    resource: Resource object to which the request was
-		        routed.
-		    params: A dict-like object representing any additional
-		        params derived from the route's URI template fields,
-		        that will be passed to the resource's responder
-		        method as keyword arguments.
-		"""
-		print("první test")
-		req.context.db = DB_Setter
+		try:
+			req.context.conn = r.connect(rethinkdb_ip, rethinkdb_port)
+		except ReqlDriverError:
+			print("Database connection could be established.")
+			raise HTTPError(title="Database connection fail.\n", description="Database connection could be established.")
 
 	def process_response(self, req, resp, resource, req_succeeded):
-		"""Post-processing of the response (after routing).
-
-		Args:
-		    req: Request object.
-		    resp: Response object.
-		    resource: Resource object to which the request was
-		        routed. May be None if no route was found
-		        for the request.
-		    req_succeeded: True if no exceptions were raised while
-		        the framework processed and routed the request;
-		        otherwise False.
-		"""
-		print("zavíráme")
-		print(resource)
 		try:
-			req.context.db.conn.close()
+			req.context.conn.close()
 		except AttributeError:
 			pass		
