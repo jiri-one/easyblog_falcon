@@ -2,6 +2,7 @@
 from rethinkdb import RethinkDB
 # import mako
 from mako.lookup import TemplateLookup
+from os import path, chdir
 
 # RethinkDB settings
 r = RethinkDB()

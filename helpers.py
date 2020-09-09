@@ -11,6 +11,7 @@ from glob import glob
 cwd = path.dirname(path.abspath(__file__))
 chdir(cwd)
 
+
 # file path helper
 def file_path(file_name):
 	"""This function return full absolute path of given file_name, but it works correctly only when the filename is unique in all folders and subfolders!!!"""
