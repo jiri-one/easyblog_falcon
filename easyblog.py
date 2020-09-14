@@ -242,7 +242,61 @@ class EasyBlog(object):
 		if resp.context.authorized == 1:
 			resp.body = {}
 		else:
-			raise falcon.HTTPSeeOther("/login")				
+			raise falcon.HTTPSeeOther("/login")
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "delete_topic.mako")
+	def on_get_topic_delete(self, req, resp, topic_id):
+		if resp.context.authorized == 1:
+			try:
+				topic = topics.get(topic_id).run(req.context.conn)
+				posts_count = posts.filter(lambda post: post["topics"]["cze"].match(topic["topic"]["cze"])).count().run(req.context.conn)
+				topic_posts = list(posts.filter(lambda post: post["topics"]["cze"].match(topic["topic"]["cze"])).run(req.context.conn))
+			except:
+				raise falcon.HTTPNotFound(title="Non-existent topic.\n", description="Please use only adresses from website.")
+			
+			for post in topic_posts:
+				splited_topics = list(filter(None, post["topics"]["cze"].split(";")))
+				for one_topic in splited_topics:
+					if one_topic == topic["topic"]["cze"]:
+						splited_topics.remove(one_topic)
+						if len(splited_topics) >= 1:
+							delete_allowed = True
+							break
+						else:
+							delete_allowed = False
+			
+			resp.body = {"topic": topic, "posts_count": posts_count, "delete_allowed": delete_allowed}
+			if req.get_param("delete") is not None and delete_allowed == True:
+				if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
+					for post in topic_posts:
+						splited_topics = list(filter(None, post["topics"]["cze"].split(";")))
+						for one_topic in splited_topics:
+							if one_topic == topic["topic"]["cze"]:
+								splited_topics.remove(one_topic)
+								if len(splited_topics) >= 1:
+									
+								else:
+									raise falcon.HTTPForbidden(title="Odstraněním tohoto tématu by vznikly posty bez přiřazeného tématu.\n", description="Vyjeď si všechny příspěvky v této kategorie a buď je smaž a nebo je přiřaď k jiné kategorii!")
+						
+						
+						post_topics = post_topics + req.params[key] + ";"
+				posts.get_all(post_url, index="url_cze").update({
+					'url': {"cze": req.get_param("post_url")},
+					'header': {"cze": req.get_param("post_header")}, 
+					'content': {"cze": req.get_param("post_content")},
+					'topics': {"cze": post_topics}				
+					}).run(req.context.conn)
+					
+					topics.get(topic_id).delete().run(req.context.conn)
+	
+					post_id = list(posts.get_all(comment["url"], index="url_cze").run(req.context.conn))[0]["id"] # first to get id of post from url
+					posts.get(post_id).update({"comments": r.row["comments"]-1}).run(req.context.conn) # then to reduct number -1					
+					raise falcon.HTTPSeeOther("/topics_admin")
+				else:
+					raise falcon.HTTPSeeOther("/topics_admin")			
+		else:
+			raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
