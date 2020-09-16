@@ -3,7 +3,7 @@
 
 % for topic in data["topics"]:
 	
-	<b>ID tématu: ${topic["id"]}</b>
+	<b>Pořadí tématu: ${topic["order"]}</b>
 	<a title="Editovat tento příspěvek" href="/edit_topic/${topic["id"]}">[EDIT]</a> 
 	<a title="Smazat tento příspěvek" href="/delete_topic/${topic["id"]}">[X]</a>
 	<dl>

@@ -19,7 +19,7 @@ def file_path(file_name):
 
 def render_template(req, resp, resource, template):
 	"""@falcon.after decorator for Mako templates - works on GET and POST methodes"""
-	all_topics = list(topics.order_by("id").run(req.context.conn)) # this line and
+	all_topics = list(topics.order_by("order").run(req.context.conn)) # this line and
 	resp.body["topics"] = all_topics # this line are here because we need refresh topic everytime, so is best to do in on one place
 	mytemplate = templatelookup.get_template(template)
 	resp.body = mytemplate.render(data=resp.body)

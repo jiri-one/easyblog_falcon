@@ -6,8 +6,8 @@ from html import unescape
 
 r = RethinkDB()
 conn = r.connect( "192.168.222.20", 28015).repl()
-topics = r.db("blog_jirione").table("topics")
-posts = r.db("blog_jirione").table("posts")
+topics = r.db("devel").table("topics")
+posts = r.db("devel").table("posts")
 
 with open('zapisky.csv', encoding="utf-8") as csvfile:
     posts.delete().run(conn)
@@ -30,15 +30,13 @@ with open('kategorie.csv', encoding="utf-8") as csvfile:
     reader = 0
     fieldnames = ['kategorie', 'popis', 'cislo', 'url_kategorie']
     reader = csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=';')
-    num_id = 1
     for row in list(reader)[1:]:
         info = topics.insert({
-            'id': num_id,
+            'order': row['cislo'],
             'topic': {"cze": row['kategorie'], "eng": ""},
             'url': {"cze": row['url_kategorie'], "eng": ""},
             'description': {"cze": row['popis'], "eng": ""}
             }).run(conn)
-        num_id = num_id + 1
 
 # get from url
 #cursor = posts.filter(r.row["url"]["cze"] == "predatori").run(conn)

@@ -273,10 +273,10 @@ class EasyBlog(object):
 						posts.get_all(post["url"]["cze"], index="url_cze").update({
 							'topics': {"cze": merged_topics}				
 							}).run(req.context.conn)
-						topics.get(topic_id).delete().run(req.context.conn)
-						#then I need to refresh topics ids
-						for new_id, topic in enumerate(topics.order_by("id").run(req.context.conn), start=1):
-							topics.get(topic["id"]).update({"id": new_id}).run(req.context.conn)
+					topics.get(topic_id).delete().run(req.context.conn)
+					#then I need to refresh topics order numbers
+					for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
+						topics.get(topic["id"]).update({"order": new_order}).run(req.context.conn)
 					raise falcon.HTTPSeeOther("/topics_admin")
 				else:
 					raise falcon.HTTPSeeOther("/topics_admin")
@@ -315,7 +315,7 @@ app.add_route('/delete/{post_url}', easyblog, suffix="delete")
 app.add_route('/edit/{post_url}', easyblog, suffix="edit")
 app.add_route('/delete_comment/{comment_id}', easyblog, suffix="delete_comment")
 app.add_route('/topics_admin', easyblog, suffix="topics_admin")
-app.add_route('/delete_topic/{topic_id:int}', easyblog, suffix="delete_topic")
+app.add_route('/delete_topic/{topic_id}', easyblog, suffix="delete_topic")
 
 
 
