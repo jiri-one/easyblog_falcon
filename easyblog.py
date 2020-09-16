@@ -220,19 +220,19 @@ class EasyBlog(object):
 	def on_get_delete_comment(self, req, resp, comment_id):
 		"""Handles requests (/delete_comment/comment_id)"""
 		if resp.context.authorized == 1:
-			try:
-				comment = comments.get(comment_id).run(req.context.conn)
-			except:
-				raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")
-			resp.body = {"comment": comment}
-			if req.get_param("delete") is not None:
-				if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
-					comments.get(comment_id).delete().run(req.context.conn)
-					post_id = list(posts.get_all(comment["url"], index="url_cze").run(req.context.conn))[0]["id"] # first to get id of post from url
-					posts.get(post_id).update({"comments": r.row["comments"]-1}).run(req.context.conn) # then to reduct number -1					
-					raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
-				else:
-					raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
+			comment = comments.get(comment_id).run(req.context.conn)
+			if comment is not None:
+				resp.body = {"comment": comment}
+				if req.get_param("delete") is not None:
+					if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
+						comments.get(comment_id).delete().run(req.context.conn)
+						post_id = list(posts.get_all(comment["url"], index="url_cze").run(req.context.conn))[0]["id"] # first to get id of post from url
+						posts.get(post_id).update({"comments": r.row["comments"]-1}).run(req.context.conn) # then to reduct number -1					
+						raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
+					else:
+						raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
+			else:
+				raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")	
 		else:
 			raise falcon.HTTPSeeOther("/login")
 	

@@ -22,7 +22,7 @@
 <br>
 <b>Témata:</b>
 <div class="topics">
-% for topic in data["topics"][:-1]: #all topics except of last
+% for topic in data["topics"][:-1]: #all topics except of last one
 	<a style="border-bottom: 1px solid #3c67be;" href="/tema/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
 % endfor
 ## and just last topic (index [-1]) alone, because it does not include border-bottom
