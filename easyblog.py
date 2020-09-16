@@ -286,6 +286,14 @@ class EasyBlog(object):
 		else:
 			raise falcon.HTTPSeeOther("/login")
 
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "new_topic.mako")	
+	def on_get_new_topic(self, req, resp):
+		if resp.context.authorized == 1:
+			resp.body = {}
+		else:
+			raise falcon.HTTPSeeOther("/login")	
+
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
 app.req_options.auto_parse_form_urlencoded = True
@@ -316,6 +324,7 @@ app.add_route('/edit/{post_url}', easyblog, suffix="edit")
 app.add_route('/delete_comment/{comment_id}', easyblog, suffix="delete_comment")
 app.add_route('/topics_admin', easyblog, suffix="topics_admin")
 app.add_route('/delete_topic/{topic_id}', easyblog, suffix="delete_topic")
+app.add_route('/new_topic', easyblog, suffix="new_topic")
 
 
 
