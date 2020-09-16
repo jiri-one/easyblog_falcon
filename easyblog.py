@@ -2,7 +2,6 @@ import falcon
 from math import ceil
 from datetime import datetime
 import argon2
-from uuid import uuid4
 from settings import posts_per_page, topics, posts, comments, authors, r
 from helpers import file_path, render_template, slice_posts, create_url, Authorize, RethinkDBConnector
 
@@ -147,7 +146,7 @@ class EasyBlog(object):
 			try:
 				if ph.verify(author["login"], req.get_param("login")):
 					if ph.verify(author["password"], req.get_param("password")):
-						new_cookie = str(uuid4())
+						new_cookie = r.uuid().run(req.context.conn)
 						authors.get(author["id"]).update({"cookie": new_cookie}).run(req.context.conn)
 						resp.set_cookie('cookie_uuid', new_cookie, max_age=72000, secure=False)
 						if ph.check_needs_rehash(author["login"]):
@@ -274,8 +273,11 @@ class EasyBlog(object):
 						posts.get_all(post["url"]["cze"], index="url_cze").update({
 							'topics': {"cze": merged_topics}				
 							}).run(req.context.conn)
-						topics.get(topic_id).delete().run(req.context.conn)				
-						raise falcon.HTTPSeeOther("/topics_admin")
+						topics.get(topic_id).delete().run(req.context.conn)
+						#then I need to refresh topics ids
+						for new_id, topic in enumerate(topics.order_by("id").run(req.context.conn), start=1):
+							topics.get(topic["id"]).update({"id": new_id}).run(req.context.conn)
+					raise falcon.HTTPSeeOther("/topics_admin")
 				else:
 					raise falcon.HTTPSeeOther("/topics_admin")
 			elif req.get_param("delete") is not None and delete_allowed == False:
