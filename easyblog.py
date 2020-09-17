@@ -292,7 +292,7 @@ class EasyBlog(object):
 		if resp.context.authorized == 1:
 			resp.body = {}
 		else:
-			raise falcon.HTTPSeeOther("/login")	
+			raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())

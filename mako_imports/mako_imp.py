@@ -14,9 +14,9 @@ def format_date(date):
 	return final_date
 
 def format_topics(post_topics, all_topics):
-	topics_in_list = list(filter(None, post_topics.split(";")))
+	topics_filtered = filter(None, post_topics.split(";"))
 	topics_links = []
-	for topic_name_in_post in topics_in_list:
+	for topic_name_in_post in topics_filtered:
 		for topic_from_list in all_topics:
 			if topic_from_list["topic"]["cze"] == topic_name_in_post:
 				topic_url = topic_from_list["url"]["cze"]
