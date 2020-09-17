@@ -133,7 +133,7 @@ a:hover { color: #3c67be; }
     font-weight: bold;
 }
 
-.comment_form input[type=text], input[type=password], textarea {
+.comment_form input[type=text], input[type=number], input[type=password], textarea {
   width: 100%;
   padding: 5px 10px;
   margin: 5px 0;

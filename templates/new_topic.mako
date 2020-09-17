@@ -3,20 +3,20 @@
 <div class="comment_title">Nové téma zápisků:</div><hr>
 <div class="comment_form">
 <form method="post" action="" accept-charset="UTF-8">
-	<label for="post_header">Název tématu v CZE:</label><br>
-	<input type="text" name="post_header" style="width:100%;"><br>
+	<label for="topic_cze">Název tématu v CZE:</label><br>
+	<input type="text" required="required" name="topic_cze" placeholder="Název tématu v CZE" style="width:100%;"><br>
 	
-	<label for="post_header">Název tématu v ENG:</label><br>
-	<input type="text" name="post_header" style="width:100%;"><br>
+	<label for="topic_eng">Název tématu v ENG:</label><br>
+	<input type="text" name="topic_eng" placeholder="Název tématu v ENG" style="width:100%;"><br>
 	
-	<label for="post_header">Popis tématu v CZE:</label><br>
-	<input type="text" name="post_header" style="width:100%;"><br>
+	<label for="description_cze">Popis tématu v CZE:</label><br>
+	<input type="text" name="description_cze" placeholder="Popis tématu v CZE" style="width:100%;"><br>
 	
-	<label for="post_header">Popis tématu v ENG:</label><br>
-	<input type="text" name="post_header" style="width:100%;"><br>
+	<label for="description_eng">Popis tématu v ENG:</label><br>
+	<input type="text" name="description_eng" placeholder="Popis tématu v ENG" style="width:100%;"><br>
 	
-	<label for="post_header">Pořadí tématu:</label><br>
-	<input type="text" name="post_header" style="width:100%;"><br>
+	<label for="order">Pořadí tématu:</label><br>
+	<input type="number" step=".1" required="required" name="order" placeholder="Pořadí může být jakékoliv celé číslo nebo desetinné číslo, které bude určovat výsledné pořadí" style="width:100%;"><br>
 
 	<input type="submit" value="Odeslat">
 </form>
