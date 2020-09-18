@@ -293,6 +293,9 @@ class EasyBlog(object):
 			resp.body = {}
 		else:
 			raise falcon.HTTPSeeOther("/login")
+	
+	def on_post_new_topic(self, req, resp):
+		
 
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
