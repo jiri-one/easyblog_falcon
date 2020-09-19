@@ -39,6 +39,10 @@ def create_url(header):
 	url = "-".join(splited_header) # and finaly join the list splited_header with "-"
 	return url
 
+def reorder_topics(topics, req):
+	for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
+		topics.get(topic["id"]).update({"order": new_order}).run(req.context.conn)
+
 class Authorize(object): # I will see in the future, if I will need this decorator to be class or just function
 	"""@falcon.before decorator for authorize if successful login - works on GET and POST methodes"""
 	def __call__(self, req, resp, resource, params):

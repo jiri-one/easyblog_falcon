@@ -3,7 +3,7 @@ from math import ceil
 from datetime import datetime
 import argon2
 from settings import posts_per_page, topics, posts, comments, authors, r
-from helpers import file_path, render_template, slice_posts, create_url, Authorize, RethinkDBConnector
+from helpers import file_path, render_template, slice_posts, create_url, Authorize, RethinkDBConnector, reorder_topics
 
 class EasyBlog(object):
 	@falcon.after(render_template, "index.mako")
@@ -208,7 +208,7 @@ class EasyBlog(object):
 				'header': {"cze": req.get_param("post_header")}, 
 				'content': {"cze": req.get_param("post_content")},
 				'topics': {"cze": post_topics}				
-				}).run(req.context.conn)
+			}).run(req.context.conn)
 			comments.filter(r.row["url"] == post_url).update({"url": req.get_param("post_url")}).run(req.context.conn)
 			raise falcon.HTTPSeeOther(f"""/{req.get_param("post_url")}""")
 		else:
@@ -273,11 +273,10 @@ class EasyBlog(object):
 							merged_topics = ";".join(splited_topics) + ";"
 							posts.get_all(post["url"]["cze"], index="url_cze").update({
 								'topics': {"cze": merged_topics}				
-								}).run(req.context.conn)
+							}).run(req.context.conn)
 					topics.get(topic_id).delete().run(req.context.conn)
 					#then I need to refresh topics order numbers
-					for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
-						topics.get(topic["id"]).update({"order": new_order}).run(req.context.conn)
+					reorder_topics(topics, req)
 					raise falcon.HTTPSeeOther("/topics_admin")
 				else:
 					raise falcon.HTTPSeeOther("/topics_admin")
@@ -299,18 +298,55 @@ class EasyBlog(object):
 	def on_post_new_topic(self, req, resp):
 		if resp.context.authorized == 1:
 			topics.insert({
-				'order': req.get_param_as_float("order"),
+				'order': req.get_param_as_float("order"), # you can choose decimal number for order
 				'topic': {"cze": req.get_param("topic_cze"),
 						  "eng": req.get_param("topic_eng")},
 				'url': {"cze": req.get_param("url_cze"),
 						"eng": req.get_param("url_eng")},
 				'description': {"cze": req.get_param("description_cze"),
 								"eng": req.get_param("description_eng")},
-				}).run(req.context.conn)			
-			for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
-				topics.get(topic["id"]).update({"order": new_order}).run(req.context.conn)
-			raise falcon.HTTPSeeOther("/topics_admin")			
-
+			}).run(req.context.conn)			
+			reorder_topics(topics, req)
+			raise falcon.HTTPSeeOther("/topics_admin")
+		else:
+			raise falcon.HTTPSeeOther("/login")
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "edit_topic.mako")			
+	def on_get_edit_topic(self, req, resp, topic_id):
+		if resp.context.authorized == 1:
+			topic = topics.get(topic_id).run(req.context.conn)
+			if topic is not None:
+				resp.body = {"topic": topic}
+			else:
+				raise falcon.HTTPNotFound(title="Non-existent topic.\n", description="Please use only adresses from website.")
+		else:
+			raise falcon.HTTPSeeOther("/login")		
+	
+	@falcon.before(Authorize())
+	def on_post_edit_topic(self, req, resp, topic_id):
+		if resp.context.authorized == 1:
+			old_topic_name = topics.get(topic_id).run(req.context.conn)["topic"]["cze"]
+			topics.get(topic_id).update({
+				'order': req.get_param_as_float("order"),
+				'topic': {"cze": req.get_param("topic_cze"),
+						  "eng": req.get_param("topic_eng")},
+				'url': {"cze": req.get_param("url_cze"),
+						"eng": req.get_param("url_eng")},
+				'description': {"cze": req.get_param("description_cze"),
+								"eng": req.get_param("description_eng")}
+			}).run(req.context.conn)
+			posts_count = posts.filter(lambda post: post["topics"]["cze"].match(old_topic_name)).count().run(req.context.conn)
+			if posts_count > 0:
+				topic_posts = list(posts.filter(lambda post: post["topics"]["cze"].match(old_topic_name)).run(req.context.conn))				
+				for post in topic_posts:
+					splited_topics = list(filter(None, post["topics"]["cze"].split(";")))
+					splited_topics.remove(old_topic_name)
+					splited_topics.append(req.get_param("topic_cze"))
+					merged_topics = ";".join(splited_topics) + ";"
+					posts.get_all(post["url"]["cze"], index="url_cze").update({'topics': {"cze": merged_topics}}).run(req.context.conn)
+			reorder_topics(topics, req)
+			raise falcon.HTTPSeeOther("/topics_admin")
 		else:
 			raise falcon.HTTPSeeOther("/login")		
 		
@@ -346,6 +382,7 @@ app.add_route('/delete_comment/{comment_id}', easyblog, suffix="delete_comment")
 app.add_route('/topics_admin', easyblog, suffix="topics_admin")
 app.add_route('/delete_topic/{topic_id}', easyblog, suffix="delete_topic")
 app.add_route('/new_topic', easyblog, suffix="new_topic")
+app.add_route('/edit_topic/{topic_id}', easyblog, suffix="edit_topic")
 
 
 
