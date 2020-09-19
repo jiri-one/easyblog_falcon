@@ -266,13 +266,14 @@ class EasyBlog(object):
 			resp.body = {"topic": topic, "posts_count": posts_count, "delete_allowed": delete_allowed}
 			if req.get_param("delete") is not None and delete_allowed == True:
 				if req.get_param("delete") == "Ano" or req.get_param("delete") == "Yes":
-					for post in topic_posts:
-						splited_topics = list(filter(None, post["topics"]["cze"].split(";")))
-						splited_topics.remove(topic["topic"]["cze"])
-						merged_topics = ";".join(splited_topics) + ";"
-						posts.get_all(post["url"]["cze"], index="url_cze").update({
-							'topics': {"cze": merged_topics}				
-							}).run(req.context.conn)
+					if posts_count > 0: # if are some posts on this topic, then we need delete this topic from that posts 
+						for post in topic_posts:
+							splited_topics = list(filter(None, post["topics"]["cze"].split(";")))
+							splited_topics.remove(topic["topic"]["cze"])
+							merged_topics = ";".join(splited_topics) + ";"
+							posts.get_all(post["url"]["cze"], index="url_cze").update({
+								'topics': {"cze": merged_topics}				
+								}).run(req.context.conn)
 					topics.get(topic_id).delete().run(req.context.conn)
 					#then I need to refresh topics order numbers
 					for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
@@ -294,7 +295,24 @@ class EasyBlog(object):
 		else:
 			raise falcon.HTTPSeeOther("/login")
 	
+	@falcon.before(Authorize())
 	def on_post_new_topic(self, req, resp):
+		if resp.context.authorized == 1:
+			topics.insert({
+				'order': req.get_param_as_float("order"),
+				'topic': {"cze": req.get_param("topic_cze"),
+						  "eng": req.get_param("topic_eng")},
+				'url': {"cze": req.get_param("url_cze"),
+						"eng": req.get_param("url_eng")},
+				'description': {"cze": req.get_param("description_cze"),
+								"eng": req.get_param("description_eng")},
+				}).run(req.context.conn)			
+			for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
+				topics.get(topic["id"]).update({"order": new_order}).run(req.context.conn)
+			raise falcon.HTTPSeeOther("/topics_admin")			
+
+		else:
+			raise falcon.HTTPSeeOther("/login")		
 		
 
 # falcon.API instances are callable WSGI apps

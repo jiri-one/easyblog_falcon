@@ -9,6 +9,12 @@
 	<label for="topic_eng">Název tématu v ENG:</label><br>
 	<input type="text" name="topic_eng" placeholder="Název tématu v ENG" style="width:100%;"><br>
 	
+	<label for="url_cze">URL adresa tématu v CZE:</label><br>
+	<input type="text" required="required" name="url_cze" placeholder="Popis tématu v CZE" style="width:100%;"><br>
+	
+	<label for="url_eng">URL adresa tématu v ENG:</label><br>
+	<input type="text" name="url_eng" placeholder="Popis tématu v ENG" style="width:100%;"><br>
+	
 	<label for="description_cze">Popis tématu v CZE:</label><br>
 	<input type="text" name="description_cze" placeholder="Popis tématu v CZE" style="width:100%;"><br>
 	
