@@ -2,10 +2,9 @@
 <html lang="cs">
 <head>
 	<title>Jiřího blog</title>
-	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="Content-Type" content="text/html">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta name="description" content="Osobní blog o knihách, Linuxu, programování a prostě o životě.">
 	<meta name="keywords" content="Linux, Python, programování, hry, seriály, filmy">
 	<meta name="author" content="Jiri One">
