@@ -11,7 +11,7 @@
      <div class="meta">
      <div class="zarazen_do">Zařazen do: ${mako_imp.format_topics(post["topics"]["cze"], data["topics"])} — Jiří @ ${post["when"].split()[1][0:5]}</div></div>
      <div class="obsah">${post["content"]["cze"]}</div>
-     <div class="feedback" align="right">Počet komentářů: ${post["comments"]}</div> 
+     <div class="feedback">Počet komentářů: ${post["comments"]}</div> 
      <div class="postend">• • •</div>
      <% 
           last_date = post["when"].split()[0][0:10]

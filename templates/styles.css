@@ -113,6 +113,10 @@ a:hover { color: #3c67be; }
   border: 1px solid #3c67be;
   }
 
+.feedback {
+  text-align: right;
+}
+
 @media (max-width: 720px) {
 .nav-other {
   display: none;

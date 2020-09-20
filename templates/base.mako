@@ -6,7 +6,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="Content-Type" content="text/html">
-	<meta name="description" content="Osobní blog o všem možném">
+	<meta name="description" content="Osobní blog o knihách, Linuxu, programování a prostě o životě.">
 	<meta name="keywords" content="Linux, Python, programování, hry, seriály, filmy">
 	<meta name="author" content="Jiri One">
 	<link rel="stylesheet" href="/templates/reset.css">
@@ -15,11 +15,11 @@
 <body class="container">
 <header>
 <div class="title">
-<a title="Přepnout stránku na český jazyk" href="/?lang=cze">
-	<img class="img_flag" src="/templates/flag_cze.svg"/></a>
+<a href="/?lang=cze">
+	<img alt="Přepnout stránku na český jazyk" class="img_flag" src="/templates/flag_cze.svg"/></a>
  ·:[ <a href="/">Jiřího blog</a> ]:· 
-<a title="Switch site to english language" href="/?lang=eng">
-	<img class="img_flag" src="/templates/flag_eng.svg"/></a>
+<a href="/?lang=eng">
+	<img alt="Switch site to english language" class="img_flag" src="/templates/flag_eng.svg"/></a>
 </div>
 </header>
 <nav>
@@ -48,10 +48,10 @@
 <div class="nav-other">
 	<b>Zajímavé odkazy:</b>
 	<div class="other-links">
-	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_new">Mé GIT repozitáře</a>
-	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_new">EasyDict.jiri.one</a>
-	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_new">LinuxGames.cz</a>
-	<a href="https://archlinux.org" target="_new">ArchLinux.org</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_blank">Mé GIT repozitáře</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_blank">EasyDict.jiri.one</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_blank">LinuxGames.cz</a>
+	<a href="https://archlinux.org" target="_blank">ArchLinux.org</a>
 	</div>
 </div>
 
@@ -64,10 +64,10 @@ ${self.body()}
 <div class="footer-other"> <!-- this links are here second time, because they are down in responsive view -->
 	<br><b>Zajímavé odkazy:</b>
 	<div class="other-links">
-	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_new">Mé GIT repozitáře</a>
-	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_new">EasyDict.jiri.one</a>
-	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_new">LinuxGames.cz</a>
-	<a href="https://archlinux.org" target="_new">ArchLinux.org</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_blank">Mé GIT repozitáře</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_blank">EasyDict.jiri.one</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_blank">LinuxGames.cz</a>
+	<a href="https://archlinux.org" target="_blank">ArchLinux.org</a>
 	</div>
 </div>
 </main>
