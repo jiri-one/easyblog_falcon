@@ -6,8 +6,8 @@ from html import unescape
 
 r = RethinkDB()
 conn = r.connect( "192.168.222.20", 28015).repl()
-topics = r.db("devel").table("topics")
-posts = r.db("devel").table("posts")
+topics = r.db("devel").table("topics") #main db is blog_jirione
+posts = r.db("devel").table("posts") #main db is blog_jirione
 
 with open('zapisky.csv', encoding="utf-8") as csvfile:
     posts.delete().run(conn)

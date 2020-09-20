@@ -7,10 +7,10 @@ from mako.lookup import TemplateLookup
 r = RethinkDB()
 rethinkdb_ip = "192.168.222.20"
 rethinkdb_port = 28015
-topics = r.db("devel").table("topics")
-posts = r.db("devel").table("posts")
-comments = r.db("devel").table("comments")
-authors = r.db("devel").table("authors")
+topics = r.db("devel").table("topics") #main db is blog_jirione
+posts = r.db("devel").table("posts") #main db is blog_jirione
+comments = r.db("devel").table("comments") #main db is blog_jirione
+authors = r.db("devel").table("authors") #main db is blog_jirione
 
 # blog settings
 posts_per_page = 10 # here you can set post per page, it will everywher in the blog

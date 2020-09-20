@@ -362,7 +362,6 @@ class EasyBlog(object):
 # falcon.API instances are callable WSGI apps
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
 app.req_options.auto_parse_form_urlencoded = True
-app.resp_options.secure_cookies_by_default = False
 app.add_static_route("/templates", file_path("templates"), downloadable=True, fallback_filename=None)
 
 # Resources are represented by long-lived class instances
@@ -395,6 +394,7 @@ app.add_route('/admin', easyblog, suffix="admin")
 
 
 if __name__ == "__main__":
+	app.resp_options.secure_cookies_by_default = False
 	#from hupper import start_reloader
 	from waitress import serve
 	#reloader = start_reloader("easyblog.app") #test
