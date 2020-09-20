@@ -348,6 +348,14 @@ class EasyBlog(object):
 			reorder_topics(topics, req)
 			raise falcon.HTTPSeeOther("/topics_admin")
 		else:
+			raise falcon.HTTPSeeOther("/login")
+	
+	@falcon.before(Authorize())
+	@falcon.after(render_template, "admin.mako")			
+	def on_get_admin(self, req, resp):
+		if resp.context.authorized == 1:
+			resp.body = {}
+		else:
 			raise falcon.HTTPSeeOther("/login")		
 		
 
@@ -383,11 +391,12 @@ app.add_route('/topics_admin', easyblog, suffix="topics_admin")
 app.add_route('/delete_topic/{topic_id}', easyblog, suffix="delete_topic")
 app.add_route('/new_topic', easyblog, suffix="new_topic")
 app.add_route('/edit_topic/{topic_id}', easyblog, suffix="edit_topic")
+app.add_route('/admin', easyblog, suffix="admin")
 
 
-
-#from hupper import start_reloader
-from waitress import serve
-#reloader = start_reloader("easyblog.app") #test
-#reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py'])
-serve(app, host='0.0.0.0', port=8080)
+if __name__ == "__main__":
+	#from hupper import start_reloader
+	from waitress import serve
+	#reloader = start_reloader("easyblog.app") #test
+	#reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py'])
+	serve(app, host='0.0.0.0', port=8080)
