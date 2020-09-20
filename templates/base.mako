@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
 <head>
 	<title>Jiřího blog</title>
-	<meta charset="utf-8">
+	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="description" content="Osobní blog o všem možném">
+	<meta name="keywords" content="Linux, Python, programování, hry, seriály, filmy">
+	<meta name="author" content="Jiri One">
 	<link rel="stylesheet" href="/templates/reset.css">
 	<link rel="stylesheet" href="/templates/styles.css">
 </head>
 <body class="container">
 <header>
-<a title="Přepnout stránku na český jazyk" href="/?lang=cze"><img align="right" class="img_flag" src="/templates/flag_cze.svg"/></a>
-<a title="Switch site to english language" href="/?lang=eng"><img align="right" class="img_flag" src="/templates/flag_eng.svg"/></a>
-<div class="title">·:[ <a href="/">Jiřího blog</a> ]:·</div>
+<div class="title">
+<a title="Přepnout stránku na český jazyk" href="/?lang=cze">
+	<img class="img_flag" src="/templates/flag_cze.svg"/></a>
+ ·:[ <a href="/">Jiřího blog</a> ]:· 
+<a title="Switch site to english language" href="/?lang=eng">
+	<img class="img_flag" src="/templates/flag_eng.svg"/></a>
+</div>
 </header>
 <nav>
 <div class="menu">
