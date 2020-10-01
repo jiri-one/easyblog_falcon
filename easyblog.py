@@ -360,8 +360,9 @@ class EasyBlog(object):
 		
 
 # falcon.API instances are callable WSGI apps
+# everything is HTML and I am using my own middleware for connecting to rethinkdb in every request/response
 app = falcon.API(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
-app.req_options.auto_parse_form_urlencoded = True
+app.req_options.auto_parse_form_urlencoded = True # that needed because of forms
 app.add_static_route("/templates", file_path("templates"), downloadable=True, fallback_filename=None)
 
 # Resources are represented by long-lived class instances
@@ -394,9 +395,10 @@ app.add_route('/admin', easyblog, suffix="admin")
 
 
 if __name__ == "__main__":
+	# this is here for testing purposes on localhost, where I dont have https server
 	app.resp_options.secure_cookies_by_default = False
-	#from hupper import start_reloader
+	#from hupper import start_reloader # for developing purposes I can enable reloader
 	from waitress import serve
-	#reloader = start_reloader("easyblog.app") #test
-	#reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py'])
+	#reloader = start_reloader("easyblog.app") # thats how to start reloader
+	#reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py']) # reloader monitored files
 	serve(app, host='0.0.0.0', port=8080)
