@@ -10,33 +10,33 @@ class EasyBlog(object):
 	def on_get(self, req, resp):
 		"""Handles GET requests on index (/)"""
 		start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
-		index_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn))
-		posts_count = posts.count().run(req.context.conn)
-		page_count = ceil(posts_count / posts_per_page)
-		pages = list(range(1,page_count+1))		
-		resp.body = {"posts": index_posts, "pages": pages}
+		index_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get index post (page 1) from RethinkDB
+		posts_count = posts.count().run(req.context.conn) # get number of all posts
+		page_count = ceil(posts_count / posts_per_page) # get number of pages
+		pages = list(range(1,page_count+1))	# list of all pages
+		resp.body = {"posts": index_posts, "pages": pages} # sending data to make tepmplate in resp.body
 	
 	@falcon.after(render_template, "index.mako")
 	def on_get_page(self, req, resp, page_number):
 		"""Handles GET requests on /page/{page_number} and /strana/{page_number}"""
-		start, end = slice_posts(page_number)
-		page_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn))
-		posts_count = posts.count().run(req.context.conn)
-		page_count = ceil(posts_count / posts_per_page)
-		pages = list(range(1,page_count+1))
-		resp.body = {"posts": page_posts, "pages": pages, "page": page_number}
+		start, end = slice_posts(page_number) # page number is parameter from web adress
+		page_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get all page posts from RethinkDB ordered by post time
+		posts_count = posts.count().run(req.context.conn) # get number of all posts
+		page_count = ceil(posts_count / posts_per_page) # get number of pages
+		pages = list(range(1,page_count+1)) # list of all pages
+		resp.body = {"posts": page_posts, "pages": pages, "page": page_number} # sending data to make tepmplate in resp.body
 	
 	@falcon.after(render_template, "index.mako")
 	def on_get_topic(self, req, resp, topic_url):
 		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
 		start, end = slice_posts(1) # number one is here hardcoded, because index of topic is always page one
-		topic = list(topics.filter(r.row["url"]["cze"] == topic_url).run(req.context.conn))[0]["topic"]["cze"]
+		topic = list(topics.filter(r.row["url"]["cze"] == topic_url).run(req.context.conn))[0]["topic"]["cze"] 
 		topic_posts = list(posts.filter(lambda post: post["topics"]["cze"].match(topic)).order_by(r.desc("when")).slice(start, end).run(req.context.conn))
 		topic_url = "/tema/" + topic_url + "/"
 		posts_count = posts.filter(lambda post: post["topics"]["cze"].match(topic)).count().run(req.context.conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))
-		resp.body = {"posts": topic_posts, "added_url": topic_url, "pages": pages}
+		resp.body = {"posts": topic_posts, "added_url": topic_url, "pages": pages} # sending data to make tepmplate in resp.body
 		
 	@falcon.after(render_template, "index.mako")
 	def on_get_topic_page(self, req, resp, topic_url, page_number):
@@ -48,7 +48,7 @@ class EasyBlog(object):
 		posts_count = posts.filter(lambda post: post["topics"]["cze"].match(topic)).count().run(req.context.conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))
-		resp.body = {"posts": topic_posts, "added_url": topic_url, "pages": pages, "page": page_number}
+		resp.body = {"posts": topic_posts, "added_url": topic_url, "pages": pages, "page": page_number} # sending data to make tepmplate in resp.body
 		
 	@falcon.after(render_template, "index.mako")
 	def on_get_search(self, req, resp, searched_word):
@@ -59,7 +59,7 @@ class EasyBlog(object):
 		posts_count = posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).count().run(req.context.conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))	
-		resp.body = {"posts": results, "added_url": search_url, "pages": pages}
+		resp.body = {"posts": results, "added_url": search_url, "pages": pages} # sending data to make tepmplate in resp.body
 			
 	@falcon.after(render_template, "index.mako")
 	def on_get_search_page(self, req, resp, searched_word, page_number):
@@ -71,7 +71,7 @@ class EasyBlog(object):
 		posts_count = posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).count().run(req.context.conn)
 		page_count = ceil(posts_count / posts_per_page)
 		pages = list(range(1,page_count+1))		
-		resp.body = {"posts": results, "added_url": search_url, "pages": pages, "page": page_number}
+		resp.body = {"posts": results, "added_url": search_url, "pages": pages, "page": page_number} # sending data to make tepmplate in resp.body
 	
 	def on_post_search_form(self, req, resp):
 		"""This method handles search form"""
@@ -88,7 +88,7 @@ class EasyBlog(object):
 		except:
 			raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
 		post_comments = list(comments.filter(r.row["url"] == post_url).order_by(r.desc("when")).run(req.context.conn))
-		resp.body = {"post": post, "comments": post_comments, "authorized": resp.context.authorized}
+		resp.body = {"post": post, "comments": post_comments, "authorized": resp.context.authorized} # sending data to make tepmplate in resp.body
 	
 	def on_post_view(self, req, resp, post_url):
 		if req.get_param_as_int("antispam") == 5:
