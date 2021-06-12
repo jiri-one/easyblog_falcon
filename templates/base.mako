@@ -47,7 +47,7 @@
 <div class="nav-other">
 	<b>Zajímavé odkazy:</b>
 	<div class="other-links">
-	<a style="border-bottom: 1px solid #3c67be;" href="https://codeberg.org/jiri.one" target="_blank">Mé GIT repozitáře</a>
+	<a style="border-bottom: 1px solid #3c67be;" href="https://github.com/jiri-one" target="_blank">Můj GitHub profil</a>
 	<a style="border-bottom: 1px solid #3c67be;" href="http://EasyDict.jiri.one/" target="_blank">EasyDict.jiri.one</a>
 	<a style="border-bottom: 1px solid #3c67be;" href="http://LinuxGames.cz" target="_blank">LinuxGames.cz</a>
 	<a href="https://archlinux.org" target="_blank">ArchLinux.org</a>
@@ -70,6 +70,6 @@ ${self.body()}
 	</div>
 </div>
 </main>
-<footer>Jiří Němec, 2020</footer>
+<footer>Jiří Němec, 2021</footer>
 </body>
 </html>

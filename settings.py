@@ -5,7 +5,7 @@ from mako.lookup import TemplateLookup
 
 # RethinkDB settings
 r = RethinkDB()
-rethinkdb_ip = "192.168.222.20"
+rethinkdb_ip = "172.17.0.2"
 rethinkdb_port = 28015
 topics = r.db("devel").table("topics") #main db is blog_jirione
 posts = r.db("devel").table("posts") #main db is blog_jirione
