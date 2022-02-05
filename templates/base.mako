@@ -70,6 +70,6 @@ ${self.body()}
 	</div>
 </div>
 </main>
-<footer>Jiří Němec, 2021</footer>
+<footer>Jiří Němec, 2022</footer>
 </body>
 </html>
