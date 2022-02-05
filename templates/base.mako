@@ -39,7 +39,7 @@
 <br>
 <div class="search_form">
 <b>Vyhledávání:</b>
-<form method="post" action="/hledej" accept-charset="UTF-8">
+<form method="post" action="/hledej/" accept-charset="UTF-8">
 <input type="text" id="vyhledavani" name="search"><br>
 <input type="submit" value="Vyhledat">
 </form></div><!-- .search_form-->

@@ -64,8 +64,8 @@ class EasyBlog(object):
 			
 	@falcon.after(render_template, "index.mako")
 	def on_get_search_page(self, req, resp, searched_word, page_number):
-		"""Handles GET requests on /topic/{topic_url} and /tema/{topic_url}"""
-		start, end = slice_posts(page_number) # number one is here hardcoded, because search index is always page one
+		"""Handles GET requests on /search/searched_word/{page_number} and /hledej/searched_word/{page_number}"""
+		start, end = slice_posts(page_number) # get page number a returns two numbers for slice posts
 		regex_word = rf"(?i){searched_word}" # for case insensitivity
 		results = list(posts.filter(lambda post: (post["content"]["cze"].match(regex_word)) or (post["header"]["cze"].match(regex_word))).order_by(r.desc("when")).slice(start, end).run(req.context.conn))
 		search_url = "/hledej/" + searched_word + "/"
@@ -77,6 +77,7 @@ class EasyBlog(object):
 	def on_post_search_form(self, req, resp):
 		"""This method handles search form"""
 		searched_word = req.get_param("search")
+		print(searched_word)
 		new_url = falcon.uri.encode(f"/hledej/{searched_word}")
 		raise falcon.HTTPSeeOther(new_url)
 	
@@ -395,11 +396,16 @@ app.add_route('/edit_topic/{topic_id}', easyblog, suffix="edit_topic")
 app.add_route('/admin', easyblog, suffix="admin")
 
 
+# the rest of code is not needed for server purposes
+def local_run():
+    """This is only helper function to run EasyBlog localy with hupper reloader"""
+    from hupper import start_reloader
+    from waitress import serve
+    app.resp_options.secure_cookies_by_default = False
+    reloader = start_reloader('easyblog.local_run')
+    # monitor an extra file
+    #reloader.watch_files(['foo.ini'])
+    serve(app, host='0.0.0.0', port=8000)
+
 if __name__ == "__main__":
-	# this is here for testing purposes on localhost, where I dont have https server
-	app.resp_options.secure_cookies_by_default = False
-	#from hupper import start_reloader # for developing purposes I can enable reloader
-	from waitress import serve
-	#reloader = start_reloader("easyblog.app") # thats how to start reloader
-	#reloader.watch_files(['settings.py', 'helpers.py', 'mako_imports/mako_imp.py']) # reloader monitored files
-	serve(app, host='0.0.0.0', port=8080)
+    local_run()
