@@ -3,6 +3,23 @@
      last_date = None
 %>
 
+<!-- this part is here only for topics and search, it shows what you are searched or current topic-->
+<b>
+% if "added_url" in data:
+    % if ("/hledej/" in data["added_url"] or "/search/" in data["added_url"]) and len(data["posts"]) == 0:
+        Nebyly nalezeny žádné výsledky pro vyhledávání slova "${data["added_url"].split("/")[2]}".
+    % elif "/hledej/" in data["added_url"] or "/search/" in data["added_url"]:
+        Nacházíte se ve výsledcích vyhledávání slova "${data["added_url"].split("/")[2]}":
+    % elif "/tema/" in data["added_url"] or "/topic/" in data["added_url"]:
+        % for topic in data["topics"]:
+            % if topic["url"]["cze"] == data["added_url"].split("/")[2]:
+                Nacházíte se v tématu "${topic["topic"]["cze"]}":
+            % endif
+        % endfor
+    % endif
+% endif
+</b><br><br>
+
 % for post in data["posts"]:
      % if last_date != post["when"].split()[0][0:10]:
           <div class="date">${mako_imp.format_date(post["when"].split()[0][0:10])}</div>  

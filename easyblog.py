@@ -150,7 +150,6 @@ class EasyBlog(object):
                         new_cookie = r.uuid().run(req.context.conn)
                         authors.get(author["id"]).update({"cookie": new_cookie}).run(req.context.conn)
                         resp.set_cookie('cookie_uuid', new_cookie, max_age=72000, secure=True)
-                        print("prošlo to až sem")
                         if ph.check_needs_rehash(author["login"]):
                             authors.get(author["id"]).update({"login": ph.hash(req.get_param("login"))}).run(req.context.conn)
                         if ph.check_needs_rehash(author["password"]):
