@@ -7,8 +7,8 @@
 	
 	% for topic in data["topics"]:
 		<div class="topics_admin"><span style="white-space: nowrap;">
-		<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="${topic["url"]["cze"]}">
-		<label for="${topic["url"]["cze"]}"> ${topic["topic"]["cze"]}</label><span></div>
+		<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="topic_${topic["url"]["cze"]}">
+		<label for="topic_${topic["url"]["cze"]}"> ${topic["topic"]["cze"]}</label><span></div>
 	% endfor
 
 	<br><br><label for="post_header">Titulek:</label><br>
@@ -25,6 +25,7 @@
 	"buttons": "source,,,,,,,brush,|,ul,ol,|,outdent,indent,|,|,image,file,video,table,link,,align,undo,redo,\n,selectall,cut,copy,paste,copyformat,|,hr,symbol,fullsize,print,preview,find"
 	});</script>
 	
-	<input type="submit" value="Odeslat">
+	<input type="submit" name="public" value="Publikovat">
+	<input type="submit" name="draft" value="Do rozepsaných">
 </form>
 </div>

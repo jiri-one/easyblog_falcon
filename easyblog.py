@@ -2,7 +2,7 @@ import falcon
 from math import ceil
 from datetime import datetime
 import argon2
-from settings import posts_per_page, topics, posts, comments, authors, r
+from settings import posts_per_page, topics, posts, comments, authors, drafts, r
 from helpers import file_path, render_template, slice_posts, create_url, Authorize, RethinkDBConnector, reorder_topics
 
 class EasyBlog(object):
@@ -81,6 +81,31 @@ class EasyBlog(object):
         raise falcon.HTTPSeeOther(new_url)
 
     @falcon.before(Authorize())
+    @falcon.after(render_template, "drafts.mako")
+    def on_get_drafts(self, req, resp):
+        """Handles GET requests on /drafts"""
+        if resp.context.authorized == 1:
+            start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
+            index_posts = list(drafts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get index post (page 1) from RethinkDB
+            posts_count = drafts.count().run(req.context.conn) # get number of all posts
+            page_count = ceil(posts_count / posts_per_page) # get number of pages
+            pages = list(range(1,page_count+1))	# list of all pages
+            resp.text = {"posts": index_posts, "pages": pages} # sending data to make tepmplate in resp.text
+        else:
+            raise falcon.HTTPSeeOther("/login")
+
+    @falcon.before(Authorize())
+    @falcon.after(render_template, "drafts.mako")
+    def on_get_drafts_page(self, req, resp, page_number):
+        """Handles GET requests on /page/{page_number} and /strana/{page_number}"""
+        start, end = slice_posts(page_number) # page number is parameter from web adress
+        page_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get all page posts from RethinkDB ordered by post time
+        posts_count = posts.count().run(req.context.conn) # get number of all posts
+        page_count = ceil(posts_count / posts_per_page) # get number of pages
+        pages = list(range(1,page_count+1)) # list of all pages
+        resp.text = {"posts": page_posts, "pages": pages, "page": page_number} # sending data to make tepmplate in resp.text
+
+    @falcon.before(Authorize())
     @falcon.after(render_template, "post.mako")
     def on_get_view(self, req, resp, post_url):
         """Handles requests (/post_url)"""
@@ -112,26 +137,36 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
-            raise falcon.HTTPSeeOther("/login")		
+            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     def on_post_new_post(self, req, resp):
         if resp.context.authorized == 1:
             post_topics = ""
             for key in req.params.keys():
-                if not(key == "post_header" or key == "post_content"): # the rule is: if key is not post_header or post_content
+                if "topic_" in key:
                     post_topics = post_topics + req.params[key] + ";"
-            posts.insert({
-                            'comments': 0,
-                        'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                        'url': {"cze": create_url(req.get_param("post_header"))},
-                        'header': {"cze": req.get_param("post_header")}, 
-                        'content': {"cze": req.get_param("post_content")},
-                        'topics': {"cze": post_topics}
-                        }).run(req.context.conn)
-            raise falcon.HTTPSeeOther("/")			
+            if req.get_param("draft") != None:
+                drafts.insert({
+                                'comments': 0,
+                                'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                'url': {"cze": create_url(req.get_param("post_header"))},
+                                'header': {"cze": req.get_param("post_header")},
+                                'content': {"cze": req.get_param("post_content")},
+                                'topics': {"cze": post_topics}
+                                }).run(req.context.conn)
+            else: # req.get_param("public") != None
+                posts.insert({
+                                'comments': 0,
+                                'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                'url': {"cze": create_url(req.get_param("post_header"))},
+                                'header': {"cze": req.get_param("post_header")},
+                                'content': {"cze": req.get_param("post_content")},
+                                'topics': {"cze": post_topics}
+                                }).run(req.context.conn)
+            raise falcon.HTTPSeeOther("/")
         else:
-            raise falcon.HTTPSeeOther("/login")			
+            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "login.mako")
@@ -394,6 +429,9 @@ app.add_route('/delete_topic/{topic_id}', easyblog, suffix="delete_topic")
 app.add_route('/new_topic', easyblog, suffix="new_topic")
 app.add_route('/edit_topic/{topic_id}', easyblog, suffix="edit_topic")
 app.add_route('/admin', easyblog, suffix="admin")
+app.add_route('/drafts', easyblog, suffix="drafts")
+app.add_route('/drafts/page/{page_number:int}', easyblog, suffix="drafts_page")
+
 
 
 # the rest of code is not needed for server purposes
