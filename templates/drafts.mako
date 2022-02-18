@@ -1,23 +1,13 @@
 <%inherit file="base.mako"/>
-<%
-     last_date = None
-%>
 
 <b>Jsou zobrazovány rozepsané a nepublikované zápisky (drafts)</b><br><br>
 
 % for post in data["posts"]:
-     % if last_date != post["when"].split()[0][0:10]:
-          <div class="date">${mako_imp.format_date(post["when"].split()[0][0:10])}</div>
-     % endif
-     <div class="titulek"><a href="/draft/${post["url"]["cze"]}">${post["header"]["cze"]}</a></div>
+     <div class="titulek"><a href="/edit_draft/${post["url"]["cze"]}">${post["header"]["cze"]}</a></div>
      <div class="meta">
-     <div class="zarazen_do">Zařazen do: ${mako_imp.format_topics(post["topics"]["cze"], data["topics"])} — Jiří @ ${post["when"].split()[1][0:5]}</div></div>
+     <div class="zarazen_do">Zařazen do: ${mako_imp.format_topics(post["topics"]["cze"], data["topics"])} — Jiří @ ${post["when"]}</div></div>
      <div class="obsah">${post["content"]["cze"]}</div>
-     <div class="feedback">Počet komentářů: ${post["comments"]}</div> 
      <div class="postend">• • •</div>
-     <% 
-          last_date = post["when"].split()[0][0:10]
-     %>
 % endfor
 
 <div class="pages">

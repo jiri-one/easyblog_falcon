@@ -8,11 +8,11 @@
 	% for topic in data["topics"]:
 		<div class="topics_admin"><span style="white-space: nowrap;">
 		% if topic["topic"]["cze"] in data["post"]["topics"]["cze"].split(";"):
-			<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="${topic["url"]["cze"]}" checked	>
+			<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="topic_${topic["url"]["cze"]}" checked	>
 		% else:
-			<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="${topic["url"]["cze"]}"	>
+			<input type="checkbox" id="" value="${topic["topic"]["cze"]}" name="topic_${topic["url"]["cze"]}"	>
 		% endif
-		<label for="${topic["url"]["cze"]}"> ${topic["topic"]["cze"]}</label></span></div>
+		<label for="topic_${topic["url"]["cze"]}"> ${topic["topic"]["cze"]}</label></span></div>
 	% endfor
 
 	<br><br><label for="post_header">Titulek:</label><br>
@@ -31,6 +31,13 @@
 	"buttons": "source,,,,,,,brush,|,ul,ol,|,outdent,indent,|,|,image,file,video,table,link,,align,undo,redo,\n,selectall,cut,copy,paste,copyformat,|,hr,symbol,fullsize,print,preview,find"
 	});</script>
 	
-	<input type="submit" value="Odeslat">
+	% if "added_url" in data:
+		% if "/draft_edit" in data["added_url"]:
+			<input type="submit" name="public" value="Publikovat">
+			<input type="submit" name="draft" value="Znovu Uložit">
+		% endif
+	% else:
+		<input type="submit" value="Editovat">
+	% endif
 </form>
 </div>

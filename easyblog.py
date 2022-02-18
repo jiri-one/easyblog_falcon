@@ -81,37 +81,12 @@ class EasyBlog(object):
         raise falcon.HTTPSeeOther(new_url)
 
     @falcon.before(Authorize())
-    @falcon.after(render_template, "drafts.mako")
-    def on_get_drafts(self, req, resp):
-        """Handles GET requests on /drafts"""
-        if resp.context.authorized == 1:
-            start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
-            index_posts = list(drafts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get index post (page 1) from RethinkDB
-            posts_count = drafts.count().run(req.context.conn) # get number of all posts
-            page_count = ceil(posts_count / posts_per_page) # get number of pages
-            pages = list(range(1,page_count+1))	# list of all pages
-            resp.text = {"posts": index_posts, "pages": pages} # sending data to make tepmplate in resp.text
-        else:
-            raise falcon.HTTPSeeOther("/login")
-
-    @falcon.before(Authorize())
-    @falcon.after(render_template, "drafts.mako")
-    def on_get_drafts_page(self, req, resp, page_number):
-        """Handles GET requests on /page/{page_number} and /strana/{page_number}"""
-        start, end = slice_posts(page_number) # page number is parameter from web adress
-        page_posts = list(posts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get all page posts from RethinkDB ordered by post time
-        posts_count = posts.count().run(req.context.conn) # get number of all posts
-        page_count = ceil(posts_count / posts_per_page) # get number of pages
-        pages = list(range(1,page_count+1)) # list of all pages
-        resp.text = {"posts": page_posts, "pages": pages, "page": page_number} # sending data to make tepmplate in resp.text
-
-    @falcon.before(Authorize())
     @falcon.after(render_template, "post.mako")
     def on_get_view(self, req, resp, post_url):
         """Handles requests (/post_url)"""
         try:
             post = list(posts.get_all(post_url, index="url_cze").run(req.context.conn))[0]
-        except:
+        except IndexError:
             raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
         post_comments = list(comments.filter(r.row["url"] == post_url).order_by(r.desc("when")).run(req.context.conn))
         resp.text = {"post": post, "comments": post_comments, "authorized": resp.context.authorized} # sending data to make tepmplate in resp.text
@@ -145,26 +120,22 @@ class EasyBlog(object):
             post_topics = ""
             for key in req.params.keys():
                 if "topic_" in key:
-                    post_topics = post_topics + req.params[key] + ";"
+                    post_topics += req.params[key] + ";"
+            dict_to_rethinkdb = {
+                'comments': 0,
+                'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'url': {"cze": create_url(req.get_param("post_header"))},
+                'header': {"cze": req.get_param("post_header")},
+                'content': {"cze": req.get_param("post_content")},
+                'topics': {"cze": post_topics}
+                }
             if req.get_param("draft") != None:
-                drafts.insert({
-                                'comments': 0,
-                                'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                'url': {"cze": create_url(req.get_param("post_header"))},
-                                'header': {"cze": req.get_param("post_header")},
-                                'content': {"cze": req.get_param("post_content")},
-                                'topics': {"cze": post_topics}
-                                }).run(req.context.conn)
+                drafts.insert(dict_to_rethinkdb).run(req.context.conn)
+                redirect_to = "/drafts"
             else: # req.get_param("public") != None
-                posts.insert({
-                                'comments': 0,
-                                'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                'url': {"cze": create_url(req.get_param("post_header"))},
-                                'header': {"cze": req.get_param("post_header")},
-                                'content': {"cze": req.get_param("post_content")},
-                                'topics': {"cze": post_topics}
-                                }).run(req.context.conn)
-            raise falcon.HTTPSeeOther("/")
+                posts.insert(dict_to_rethinkdb).run(req.context.conn)
+                redirect_to = "/"
+            raise falcon.HTTPSeeOther(redirect_to)
         else:
             raise falcon.HTTPSeeOther("/login")
 
@@ -204,7 +175,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             try:
                 post = list(posts.get_all(post_url, index="url_cze").run(req.context.conn))[0]
-            except:
+            except IndexError:
                 raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
             post_comments = list(comments.filter(r.row["url"] == post_url).order_by(r.desc("when")).run(req.context.conn))
             resp.text = {"post": post, "comments": post_comments}
@@ -225,7 +196,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             try:
                 post = list(posts.get_all(post_url, index="url_cze").run(req.context.conn))[0]
-            except:
+            except IndexError:
                 raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
             resp.text = {"post": post}
         else:
@@ -392,7 +363,91 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
+            raise falcon.HTTPSeeOther("/login")
+    
+    @falcon.before(Authorize())
+    @falcon.after(render_template, "drafts.mako")
+    def on_get_drafts(self, req, resp):
+        """Handles GET requests on /drafts"""
+        if resp.context.authorized == 1:
+            start, end = slice_posts(1) # number one is here hardcoded, because index is always page one
+            index_posts = list(drafts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get index post (page 1) from RethinkDB
+            posts_count = drafts.count().run(req.context.conn) # get number of all posts
+            page_count = ceil(posts_count / posts_per_page) # get number of pages
+            pages = list(range(1,page_count+1))	# list of all pages
+            resp.text = {"posts": index_posts, "added_url": "/drafts/", "pages": pages} # sending data to make tepmplate in resp.text
+        else:
+            raise falcon.HTTPSeeOther("/login")
+
+    @falcon.before(Authorize())
+    @falcon.after(render_template, "index.mako")
+    def on_get_drafts_page(self, req, resp, page_number):
+        """Handles GET requests on /drafts/page/{page_number} and /drafts/strana/{page_number}"""
+        if resp.context.authorized == 1:
+            start, end = slice_posts(page_number) # page number is parameter from web adress
+            page_posts = list(drafts.order_by(r.desc("when")).slice(start, end).run(req.context.conn)) # get all page posts from RethinkDB ordered by post time
+            posts_count = drafts.count().run(req.context.conn) # get number of all posts
+            page_count = ceil(posts_count / posts_per_page) # get number of pages
+            pages = list(range(1,page_count+1)) # list of all pages
+            resp.text = {"posts": page_posts, "added_url": "/drafts/", "pages": pages, "page": page_number} # sending data to make tepmplate in resp.text
+        else:
+            raise falcon.HTTPSeeOther("/login")
+
+    @falcon.before(Authorize())
+    @falcon.after(render_template, "edit.mako")
+    def on_get_edit_draft(self, req, resp, post_url):
+        """Handles requests (/edit_draft/post_url)"""
+        if resp.context.authorized == 1:
+            try:
+                post = list(drafts.filter(r.row["url"]["cze"] == post_url).run(req.context.conn))[0]
+            except IndexError:
+                raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
+            resp.text = {"post": post, "added_url": "/draft_edit"}
+        else:
             raise falcon.HTTPSeeOther("/login")		
+
+    @falcon.before(Authorize())
+    def on_post_edit_draft(self, req, resp, post_url):
+        """Handles requests (/edit_draft/post_url)"""
+        if resp.context.authorized == 1:
+            post_topics = ""
+            for key in req.params.keys():
+                if "topic_" in key:
+                    post_topics += req.params[key] + ";"
+            dict_to_rethinkdb = {
+                'comments': 0,
+                'when': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'url': {"cze": create_url(req.get_param("post_header"))},
+                'header': {"cze": req.get_param("post_header")},
+                'content': {"cze": req.get_param("post_content")},
+                'topics': {"cze": post_topics}
+                }
+            if req.get_param("draft") != None:
+                drafts.filter(r.row["url"]["cze"] == post_url).update(dict_to_rethinkdb).run(req.context.conn)
+                redirect_to = "/drafts"
+            else: # req.get_param("public") != None
+                posts.insert(dict_to_rethinkdb).run(req.context.conn)
+                drafts.filter(r.row["url"]["cze"] == post_url).delete().run(req.context.conn)
+                redirect_to = "/"
+            raise falcon.HTTPSeeOther(redirect_to)        
+        else:
+            raise falcon.HTTPSeeOther("/login")          
+        
+        
+        if resp.context.authorized == 1:
+            post_topics = ""
+            for key in req.params.keys():
+                if not(key == "post_header" or key == "post_content" or key == "post_url"): # the rule is: if key is not post_header or post_content or post_url
+                    post_topics = post_topics + req.params[key] + ";"
+            posts.get_all(post_url, index="url_cze").update({
+                            'url': {"cze": req.get_param("post_url")},
+                                'header': {"cze": req.get_param("post_header")}, 
+                                'content': {"cze": req.get_param("post_content")},
+                                'topics': {"cze": post_topics}				
+                                }).run(req.context.conn)
+            
+            raise falcon.HTTPSeeOther(f"""/{req.get_param("post_url")}""")
+  
 
 
 # falcon.API instances are callable WSGI apps
@@ -429,8 +484,12 @@ app.add_route('/delete_topic/{topic_id}', easyblog, suffix="delete_topic")
 app.add_route('/new_topic', easyblog, suffix="new_topic")
 app.add_route('/edit_topic/{topic_id}', easyblog, suffix="edit_topic")
 app.add_route('/admin', easyblog, suffix="admin")
+#app.add_route('/drafts/', easyblog, suffix="drafts")
 app.add_route('/drafts', easyblog, suffix="drafts")
 app.add_route('/drafts/page/{page_number:int}', easyblog, suffix="drafts_page")
+app.add_route('/drafts/strana/{page_number:int}', easyblog, suffix="drafts_page")
+app.add_route('/edit_draft/{post_url}', easyblog, suffix="edit_draft")
+
 
 
 

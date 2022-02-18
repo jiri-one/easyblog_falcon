@@ -32,7 +32,7 @@
 	<a style="border-bottom: 1px solid #3c67be;" href="/tema/${topic["url"]["cze"]}">${topic["topic"]["cze"]}</a>
 % endfor
 ## and just last topic (index [-1]) alone, because it does not include border-bottom
-<a href="/topic/${data["topics"][-1]["url"]["cze"]}">${data["topics"][-1]["topic"]["cze"]}</a> 
+<a href="/tema/${data["topics"][-1]["url"]["cze"]}">${data["topics"][-1]["topic"]["cze"]}</a> 
 	
 
 </div><!-- .topics-->

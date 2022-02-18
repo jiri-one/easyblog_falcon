@@ -60,7 +60,7 @@ class RethinkDBConnector(object):
 			req.context.conn = r.connect(rethinkdb_ip, rethinkdb_port)
 		except ReqlDriverError:
 			print("Database connection could be established.")
-			raise HTTPError(title="Database connection fail.\n", description="Database connection could be established.")
+			raise HTTPError(title="Database connection fail.\n", description="Database connection couldn't be established.")
 
 	def process_response(self, req, resp, resource, req_succeeded):
 		try:
