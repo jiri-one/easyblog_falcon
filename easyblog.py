@@ -1,4 +1,4 @@
-import falcon
+import falcon, falcon.media
 from math import ceil
 from datetime import datetime
 import argon2
@@ -433,22 +433,28 @@ class EasyBlog(object):
         else:
             raise falcon.HTTPSeeOther("/login")          
         
-        
+    @falcon.before(Authorize())
+    @falcon.after(render_template, "upload.mako")
+    def on_get_upload(self, req, resp):
+        """Handles GET requests (/upload)"""
         if resp.context.authorized == 1:
-            post_topics = ""
-            for key in req.params.keys():
-                if not(key == "post_header" or key == "post_content" or key == "post_url"): # the rule is: if key is not post_header or post_content or post_url
-                    post_topics = post_topics + req.params[key] + ";"
-            posts.get_all(post_url, index="url_cze").update({
-                            'url': {"cze": req.get_param("post_url")},
-                                'header': {"cze": req.get_param("post_header")}, 
-                                'content': {"cze": req.get_param("post_content")},
-                                'topics': {"cze": post_topics}				
-                                }).run(req.context.conn)
-            
-            raise falcon.HTTPSeeOther(f"""/{req.get_param("post_url")}""")
-  
-
+            resp.text = {}
+        else:
+            raise falcon.HTTPSeeOther("/login")
+    
+    @falcon.before(Authorize())
+    def on_post_upload(self, req, resp):
+        """Handles POST requests (/upload)"""
+        if resp.context.authorized == 1:
+            form = req.get_media()
+            for part in form:
+                if part.name == 'filename':
+                    with open("test.pdf", "wb") as dest:
+                        while True:
+                            chunk = part.stream.read(4096)
+                            if not chunk:
+                                break
+                            dest.write(chunk)
 
 # falcon.API instances are callable WSGI apps
 # everything is HTML and I am using my own middleware for connecting to rethinkdb in every request/response
@@ -488,8 +494,7 @@ app.add_route('/drafts', easyblog, suffix="drafts")
 app.add_route('/drafts/page/{page_number:int}', easyblog, suffix="drafts_page")
 app.add_route('/drafts/strana/{page_number:int}', easyblog, suffix="drafts_page")
 app.add_route('/edit_draft/{post_url}', easyblog, suffix="edit_draft")
-
-
+app.add_route('/upload', easyblog, suffix="upload")
 
 
 # the rest of code is not needed for server purposes
