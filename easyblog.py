@@ -443,24 +443,29 @@ class EasyBlog(object):
             raise falcon.HTTPSeeOther("/login")
     
     @falcon.before(Authorize())
+    @falcon.after(render_template, "upload.mako")
     def on_post_upload(self, req, resp):
         """Handles POST requests (/upload)"""
         if resp.context.authorized == 1:
             form = req.get_media()
             for part in form:
                 if part.name == 'filename':
-                    with open("test.pdf", "wb") as dest:
+                    with open(f"files/{part.filename}", "wb") as dest:
                         while True:
                             chunk = part.stream.read(4096)
                             if not chunk:
                                 break
                             dest.write(chunk)
+                resp.text = {"link": part.filename}
+        else:
+            raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
 # everything is HTML and I am using my own middleware for connecting to rethinkdb in every request/response
 app = falcon.App(media_type=falcon.MEDIA_HTML, middleware=RethinkDBConnector())
 app.req_options.auto_parse_form_urlencoded = True # that needed because of forms
 app.add_static_route("/templates", file_path("templates"), downloadable=True, fallback_filename=None)
+app.add_static_route("/files", file_path("files"), downloadable=True, fallback_filename=None)
 
 
 # Resources are represented by long-lived class instances
