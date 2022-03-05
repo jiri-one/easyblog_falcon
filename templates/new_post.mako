@@ -1,5 +1,7 @@
 <%inherit file="base.mako"/>
 
+
+
 <div class="comment_title">Nový příspěvek:</div><hr>
 <div class="comment_form">
 <form method="post" action="" accept-charset="UTF-8">
@@ -28,4 +30,31 @@
 	<input type="submit" name="public" value="Publikovat">
 	<input type="submit" name="draft" value="Do rozepsaných">
 </form>
+</div>
+
+<script>
+function hideOrShow() {
+	
+  // Select the element with id "theDIV"
+  var x = document.getElementById("uploader");
+  
+  // If selected element is hidden
+  if (x.style.display === "none") {
+  
+    // Show the hidden element
+    x.style.display = "block";
+    
+    // Else if the selected element is shown
+  } else {
+  
+    // Hide the element
+    x.style.display = "none";
+  }
+}
+</script>
+
+<a class="button" style="cursor: pointer;" onclick="hideOrShow()">Show/hide uploader</a><br><br>
+
+<div id="uploader" style="display:none;">
+<embed src="/upload" width="100%" height="200" />
 </div>
