@@ -112,6 +112,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -137,13 +138,18 @@ class EasyBlog(object):
                 redirect_to = "/"
             raise falcon.HTTPSeeOther(redirect_to)
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "login.mako")
     def on_get_login(self, req, resp):
         if resp.context.authorized == 1:
-            raise falcon.HTTPSeeOther("/new_post")
+            if "redirecting_address" in resp.context:
+                resp.unset_cookie('redirected_from')
+                raise falcon.HTTPSeeOther(resp.context.redirecting_address) 
+            else:
+                raise falcon.HTTPSeeOther("/admin")
         else:
             resp.text = {}
 
@@ -160,7 +166,12 @@ class EasyBlog(object):
                             authors.get(author["id"]).update({"login": ph.hash(req.get_param("login"))}).run(req.context.conn)
                         if ph.check_needs_rehash(author["password"]):
                             authors.get(author["id"]).update({"password": ph.hash(req.get_param("password"))}).run(req.context.conn)
-                        raise falcon.HTTPSeeOther("/new_post")
+                        redirecting_address = req.get_cookie_values('redirected_from')
+                        if redirecting_address:
+                            resp.unset_cookie('redirected_from')
+                            raise falcon.HTTPSeeOther(redirecting_address[0])
+                        else:
+                            raise falcon.HTTPSeeOther("/admin")
             except argon2.exceptions.VerifyMismatchError:
                 raise falcon.HTTPUnauthorized(title="Bad login or password! (Špatné jméno nebo heslo!)")
 
@@ -187,6 +198,7 @@ class EasyBlog(object):
                 else:
                     raise falcon.HTTPSeeOther(f"/{post_url}")
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther(f"/{post_url}")			
 
     @falcon.before(Authorize())
@@ -200,6 +212,7 @@ class EasyBlog(object):
                 raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
             resp.text = {"post": post}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")		
 
     @falcon.before(Authorize())
@@ -219,6 +232,7 @@ class EasyBlog(object):
             comments.filter(r.row["url"] == post_url).update({"url": req.get_param("post_url")}).run(req.context.conn)
             raise falcon.HTTPSeeOther(f"""/{req.get_param("post_url")}""")
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -240,6 +254,7 @@ class EasyBlog(object):
             else:
                 raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")	
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -248,6 +263,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -291,6 +307,7 @@ class EasyBlog(object):
                 # this is here, because I can click to No or anything and I will be back on topics_admin
                 raise falcon.HTTPSeeOther("/topics_admin")
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -299,6 +316,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -316,6 +334,7 @@ class EasyBlog(object):
             reorder_topics(topics, req)
             raise falcon.HTTPSeeOther("/topics_admin")
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -328,6 +347,7 @@ class EasyBlog(object):
             else:
                 raise falcon.HTTPNotFound(title="Non-existent topic.\n", description="Please use only adresses from website.")
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")		
 
     @falcon.before(Authorize())
@@ -355,6 +375,7 @@ class EasyBlog(object):
             reorder_topics(topics, req)
             raise falcon.HTTPSeeOther("/topics_admin")
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -363,6 +384,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
     
     @falcon.before(Authorize())
@@ -377,6 +399,7 @@ class EasyBlog(object):
             pages = list(range(1,page_count+1))	# list of all pages
             resp.text = {"posts": index_posts, "added_url": "/drafts/", "pages": pages} # sending data to make tepmplate in resp.text
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -391,6 +414,7 @@ class EasyBlog(object):
             pages = list(range(1,page_count+1)) # list of all pages
             resp.text = {"posts": page_posts, "added_url": "/drafts/", "pages": pages, "page": page_number} # sending data to make tepmplate in resp.text
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
@@ -404,6 +428,7 @@ class EasyBlog(object):
                 raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
             resp.text = {"post": post, "added_url": "/draft_edit"}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")		
 
     @falcon.before(Authorize())
@@ -431,6 +456,7 @@ class EasyBlog(object):
                 redirect_to = "/"
             raise falcon.HTTPSeeOther(redirect_to)        
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")          
         
     @falcon.before(Authorize())
@@ -440,6 +466,7 @@ class EasyBlog(object):
         if resp.context.authorized == 1:
             resp.text = {}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
     
     @falcon.before(Authorize())
@@ -458,6 +485,7 @@ class EasyBlog(object):
                             dest.write(chunk)
                 resp.text = {"link": part.filename}
         else:
+            resp.set_cookie('redirected_from', req.relative_uri, max_age=600)
             raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
