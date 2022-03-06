@@ -35,7 +35,7 @@
 <script>
 function hideOrShow() {
 	
-  // Select the element with id "theDIV"
+  // Select the element with id "uploader"
   var x = document.getElementById("uploader");
   
   // If selected element is hidden

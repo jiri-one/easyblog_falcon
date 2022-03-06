@@ -41,3 +41,30 @@
 	% endif
 </form>
 </div>
+
+<script>
+function hideOrShow() {
+	
+  // Select the element with id "uploader"
+  var x = document.getElementById("uploader");
+  
+  // If selected element is hidden
+  if (x.style.display === "none") {
+  
+    // Show the hidden element
+    x.style.display = "block";
+    
+    // Else if the selected element is shown
+  } else {
+  
+    // Hide the element
+    x.style.display = "none";
+  }
+}
+</script>
+
+<a class="button" style="cursor: pointer;" onclick="hideOrShow()">Show/hide uploader</a><br><br>
+
+<div id="uploader" style="display:none;">
+<embed src="/upload" width="100%" height="200" />
+</div>

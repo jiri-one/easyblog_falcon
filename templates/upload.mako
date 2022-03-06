@@ -1,4 +1,4 @@
-% if "link" in data: # this will be show after file will be uploaded
+% if "link" in data: # this will be shown after file will be uploaded
     <script>
     function copyTextFunction() {
       <!-- We can copy innerText or InnerHTML ... -->
