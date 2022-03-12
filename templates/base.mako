@@ -10,6 +10,7 @@
 	<meta name="author" content="Jiri One">
 	<link rel="stylesheet" href="/templates/reset.css">
 	<link rel="stylesheet" href="/templates/styles.css">
+	<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
 </head>
 <body class="container">
 <header>
