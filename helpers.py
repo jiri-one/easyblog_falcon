@@ -3,6 +3,7 @@ import re
 from unidecode import unidecode
 from rethinkdb.errors import ReqlDriverError
 from falcon.errors import HTTPError
+from falcon import HTTPSeeOther
 # import to set current working directory
 from os import path, chdir
 from glob import glob
@@ -53,6 +54,11 @@ class Authorize(object): # I will see in the future, if I will need this decorat
 				if author["cookie"] == cookie_uuid:
 					resp.context.authorized = 1
 					break
+				
+		elif req.relative_uri != "/login":
+			#resp.unset_cookie('redir_from')
+			resp.set_cookie('redir_from', req.relative_uri, path="/",   max_age=600, secure=True)
+			raise HTTPSeeOther("/login")
 
 class RethinkDBConnector(object):
 	def process_resource(self, req, resp, resource, params):

@@ -111,8 +111,6 @@ class EasyBlog(object):
     def on_get_new_post(self, req, resp):
         if resp.context.authorized == 1:
             resp.text = {}
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     def on_post_new_post(self, req, resp):
@@ -136,14 +134,18 @@ class EasyBlog(object):
                 posts.insert(dict_to_rethinkdb).run(req.context.conn)
                 redirect_to = "/"
             raise falcon.HTTPSeeOther(redirect_to)
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "login.mako")
     def on_get_login(self, req, resp):
         if resp.context.authorized == 1:
-            raise falcon.HTTPSeeOther("/new_post")
+            if req.get_cookie_values('redir_from'):
+                redirecting_address = req.get_cookie_values('redir_from')[0]
+                resp.unset_cookie('redir_from')
+                raise falcon.HTTPSeeOther(redirecting_address) 
+            else:
+                resp.unset_cookie('redir_from')
+                raise falcon.HTTPSeeOther("/admin")
         else:
             resp.text = {}
 
@@ -160,7 +162,14 @@ class EasyBlog(object):
                             authors.get(author["id"]).update({"login": ph.hash(req.get_param("login"))}).run(req.context.conn)
                         if ph.check_needs_rehash(author["password"]):
                             authors.get(author["id"]).update({"password": ph.hash(req.get_param("password"))}).run(req.context.conn)
-                        raise falcon.HTTPSeeOther("/new_post")
+                        
+                        redirecting_address = req.get_cookie_values('redir_from')
+                        print("post", redirecting_address)
+                        if redirecting_address:
+                            resp.unset_cookie('redir_from')
+                            raise falcon.HTTPSeeOther(redirecting_address[0])
+                        else:
+                            raise falcon.HTTPSeeOther("/admin")
             except argon2.exceptions.VerifyMismatchError:
                 raise falcon.HTTPUnauthorized(title="Bad login or password! (Špatné jméno nebo heslo!)")
 
@@ -186,8 +195,6 @@ class EasyBlog(object):
                     raise falcon.HTTPSeeOther("/")
                 else:
                     raise falcon.HTTPSeeOther(f"/{post_url}")
-        else:
-            raise falcon.HTTPSeeOther(f"/{post_url}")			
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "edit.mako")
@@ -199,8 +206,6 @@ class EasyBlog(object):
             except IndexError:
                 raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
             resp.text = {"post": post}
-        else:
-            raise falcon.HTTPSeeOther("/login")		
 
     @falcon.before(Authorize())
     def on_post_edit(self, req, resp, post_url):
@@ -218,8 +223,6 @@ class EasyBlog(object):
                                 }).run(req.context.conn)
             comments.filter(r.row["url"] == post_url).update({"url": req.get_param("post_url")}).run(req.context.conn)
             raise falcon.HTTPSeeOther(f"""/{req.get_param("post_url")}""")
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "delete_comment.mako")
@@ -239,16 +242,12 @@ class EasyBlog(object):
                         raise falcon.HTTPSeeOther(f"""/{comment["url"]}""")
             else:
                 raise falcon.HTTPNotFound(title="Non-existent comment.\n", description="Please use only adresses from website.")	
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "topics_admin.mako")
     def on_get_topics_admin(self, req, resp):
         if resp.context.authorized == 1:
             resp.text = {}
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "delete_topic.mako")
@@ -290,16 +289,12 @@ class EasyBlog(object):
             elif req.get_param("delete") is not None and delete_allowed == False:
                 # this is here, because I can click to No or anything and I will be back on topics_admin
                 raise falcon.HTTPSeeOther("/topics_admin")
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "new_topic.mako")	
     def on_get_new_topic(self, req, resp):
         if resp.context.authorized == 1:
             resp.text = {}
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     def on_post_new_topic(self, req, resp):
@@ -315,8 +310,6 @@ class EasyBlog(object):
                                 }).run(req.context.conn)			
             reorder_topics(topics, req)
             raise falcon.HTTPSeeOther("/topics_admin")
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "edit_topic.mako")			
@@ -327,8 +320,6 @@ class EasyBlog(object):
                 resp.text = {"topic": topic}
             else:
                 raise falcon.HTTPNotFound(title="Non-existent topic.\n", description="Please use only adresses from website.")
-        else:
-            raise falcon.HTTPSeeOther("/login")		
 
     @falcon.before(Authorize())
     def on_post_edit_topic(self, req, resp, topic_id):
@@ -354,16 +345,12 @@ class EasyBlog(object):
                     posts.get_all(post["url"]["cze"], index="url_cze").update({'topics': {"cze": merged_topics}}).run(req.context.conn)
             reorder_topics(topics, req)
             raise falcon.HTTPSeeOther("/topics_admin")
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "admin.mako")			
     def on_get_admin(self, req, resp):
         if resp.context.authorized == 1:
             resp.text = {}
-        else:
-            raise falcon.HTTPSeeOther("/login")
     
     @falcon.before(Authorize())
     @falcon.after(render_template, "drafts.mako")
@@ -376,8 +363,6 @@ class EasyBlog(object):
             page_count = ceil(posts_count / posts_per_page) # get number of pages
             pages = list(range(1,page_count+1))	# list of all pages
             resp.text = {"posts": index_posts, "added_url": "/drafts/", "pages": pages} # sending data to make tepmplate in resp.text
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "index.mako")
@@ -390,8 +375,6 @@ class EasyBlog(object):
             page_count = ceil(posts_count / posts_per_page) # get number of pages
             pages = list(range(1,page_count+1)) # list of all pages
             resp.text = {"posts": page_posts, "added_url": "/drafts/", "pages": pages, "page": page_number} # sending data to make tepmplate in resp.text
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
     @falcon.before(Authorize())
     @falcon.after(render_template, "edit.mako")
@@ -403,8 +386,6 @@ class EasyBlog(object):
             except IndexError:
                 raise falcon.HTTPNotFound(title="Non-existent address.\n", description="Please use only adresses from website.")
             resp.text = {"post": post, "added_url": "/draft_edit"}
-        else:
-            raise falcon.HTTPSeeOther("/login")		
 
     @falcon.before(Authorize())
     def on_post_edit_draft(self, req, resp, post_url):
@@ -430,8 +411,6 @@ class EasyBlog(object):
                 drafts.filter(r.row["url"]["cze"] == post_url).delete().run(req.context.conn)
                 redirect_to = "/"
             raise falcon.HTTPSeeOther(redirect_to)        
-        else:
-            raise falcon.HTTPSeeOther("/login")          
         
     @falcon.before(Authorize())
     @falcon.after(render_template, "upload.mako")
@@ -439,9 +418,7 @@ class EasyBlog(object):
         """Handles GET requests (/upload)"""
         if resp.context.authorized == 1:
             resp.text = {}
-        else:
-            raise falcon.HTTPSeeOther("/login")
-    
+   
     @falcon.before(Authorize())
     @falcon.after(render_template, "upload.mako")
     def on_post_upload(self, req, resp):
@@ -457,8 +434,6 @@ class EasyBlog(object):
                                 break
                             dest.write(chunk)
                 resp.text = {"link": part.filename}
-        else:
-            raise falcon.HTTPSeeOther("/login")
 
 # falcon.API instances are callable WSGI apps
 # everything is HTML and I am using my own middleware for connecting to rethinkdb in every request/response
@@ -507,7 +482,7 @@ def local_run():
     """This is only helper function to run EasyBlog localy with hupper reloader"""
     from hupper import start_reloader
     from waitress import serve
-    app.resp_options.secure_cookies_by_default = False
+    #app.resp_options.secure_cookies_by_default = False
     reloader = start_reloader('easyblog.local_run')
     # monitor an extra file
     #reloader.watch_files(['foo.ini'])
