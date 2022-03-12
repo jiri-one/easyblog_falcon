@@ -54,7 +54,12 @@ class Authorize(object): # I will see in the future, if I will need this decorat
 				if author["cookie"] == cookie_uuid:
 					resp.context.authorized = 1
 					break
-				
+			else: # this part is here, because is possibility to try to access admin sites from another browser with old cookies
+				if resp.context.authorized != 1:
+					resp.unset_cookie('cookie_uuid')
+					resp.set_cookie('redir_from', req.relative_uri, path="/",   max_age=600, secure=True)
+					raise HTTPSeeOther("/login")
+	
 		elif req.relative_uri != "/login":
 			#resp.unset_cookie('redir_from')
 			resp.set_cookie('redir_from', req.relative_uri, path="/",   max_age=600, secure=True)

@@ -164,7 +164,6 @@ class EasyBlog(object):
                             authors.get(author["id"]).update({"password": ph.hash(req.get_param("password"))}).run(req.context.conn)
                         
                         redirecting_address = req.get_cookie_values('redir_from')
-                        print("post", redirecting_address)
                         if redirecting_address:
                             resp.unset_cookie('redir_from')
                             raise falcon.HTTPSeeOther(redirecting_address[0])
