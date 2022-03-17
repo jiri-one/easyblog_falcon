@@ -80,7 +80,7 @@ class EasyBlog(object):
         new_url = falcon.uri.encode(f"/hledej/{searched_word}")
         raise falcon.HTTPSeeOther(new_url)
 
-    @falcon.before(Authorize())
+    @falcon.before(Authorize(only_admin=0))
     @falcon.after(render_template, "post.mako")
     def on_get_view(self, req, resp, post_url):
         """Handles requests (/post_url)"""
@@ -135,7 +135,7 @@ class EasyBlog(object):
                 redirect_to = "/"
             raise falcon.HTTPSeeOther(redirect_to)
 
-    @falcon.before(Authorize())
+    @falcon.before(Authorize(only_admin=0))
     @falcon.after(render_template, "login.mako")
     def on_get_login(self, req, resp):
         if resp.context.authorized == 1:

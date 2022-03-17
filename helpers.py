@@ -44,8 +44,13 @@ def reorder_topics(topics, req):
 	for new_order, topic in enumerate(topics.order_by("order").run(req.context.conn), start=1):
 		topics.get(topic["id"]).update({"order": new_order}).run(req.context.conn)
 
-class Authorize(object): # I will see in the future, if I will need this decorator to be class or just function
+class Authorize(object):
 	"""@falcon.before decorator for authorize if successful login - works on GET and POST methodes"""
+	def __init__(self, only_admin = 1):
+		# the only_admin is here because some sites can work with admin privileges, 
+		# but don't need them for work (for example methods on_get_login or on_get_view)
+		self.only_admin = only_admin
+
 	def __call__(self, req, resp, resource, params):
 		resp.context.authorized = 0
 		if req.get_cookie_values('cookie_uuid'):
@@ -59,12 +64,14 @@ class Authorize(object): # I will see in the future, if I will need this decorat
 					resp.unset_cookie('cookie_uuid')
 					resp.set_cookie('redir_from', req.relative_uri, path="/",   max_age=600, secure=True)
 					raise HTTPSeeOther("/login")
-	
-		elif req.relative_uri != "/login":
-			#resp.unset_cookie('redir_from')
+
+		elif self.only_admin == 1 and resp.context.authorized == 0:
+			resp.unset_cookie('cookie_uuid') # only for sure
+			resp.unset_cookie('redir_from')
 			resp.set_cookie('redir_from', req.relative_uri, path="/",   max_age=600, secure=True)
 			raise HTTPSeeOther("/login")
 
+	
 class RethinkDBConnector(object):
 	def process_resource(self, req, resp, resource, params):
 		try:
