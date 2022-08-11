@@ -1,4 +1,4 @@
-import falcon, falcon.media
+import falcon
 from math import ceil
 from datetime import datetime
 import argon2
